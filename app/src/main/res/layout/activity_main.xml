@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/button_bluetooth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="showBluetoothList"
+                        android:text="@string/button_bluetooth" />
+
+                    <Button
+                        android:id="@id/button_export"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/button_bluetooth"
+                        android:onClick="exportExcel"
+                        android:text="@string/button_export" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="1.0dip"
+                    android:background="#ff767676" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@id/text_ac"
+                        android:layout_width="80.0dip"
+                        android:layout_height="30.0dip"
+                        android:gravity="center"
+                        android:text="@string/AC"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@id/text_dc"
+                        android:layout_width="80.0dip"
+                        android:layout_height="30.0dip"
+                        android:background="@drawable/text_bg"
+                        android:gravity="center"
+                        android:text="@string/DC"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/text_ac"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@id/text_usb"
+                        android:layout_width="80.0dip"
+                        android:layout_height="30.0dip"
+                        android:background="@drawable/text_bg"
+                        android:gravity="center"
+                        android:text="@string/USB"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/text_dc"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@id/textView2"
+                        android:layout_width="0.0dip"
+                        android:layout_height="0.0dip"
+                        android:layout_margin="0.0dip"
+                        android:background="#ff767676"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/text_usb"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@id/text_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@id/textView2"
+                        app:layout_constraintEnd_toEndOf="@id/textView2"
+                        app:layout_constraintStart_toStartOf="@id/textView2"
+                        app:layout_constraintTop_toTopOf="@id/textView2" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Voltage"
+                        android:textAllCaps="false"
+                        android:textColor="#ffbfd84f"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textVoltage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="000.0V"
+                        android:textColor="#ffbfd84f"
+                        android:textSize="18.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Current"
+                        android:textColor="#ff308b9e"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textCurrent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="0.000A"
+                        android:textColor="#ff308b9e"
+                        android:textSize="18.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/power"
+                        android:textColor="#ffe4b86a"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textPower"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="0000.0W"
+                        android:textColor="#ffe4b86a"
+                        android:textSize="18.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Power_Factor"
+                        android:textColor="#ff137363"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textFactor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="0.00PF"
+                        android:textColor="#ff137363"
+                        android:textSize="18.0sp" />
+
+                    <Button
+                        android:id="@id/button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.01"
+                        android:background="@color/textColor"
+                        android:text="@string/Reset"
+                        android:textColor="#ff137363"
+                        android:textSize="14.0sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@id/layout1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Cumulative_power"
+                        android:textColor="#ffd8a14c"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textCumulative"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="0000.0"
+                        android:textColor="#ffd8a14c"
+                        android:textSize="18.0sp" />
+
+                    <Button
+                        android:id="@id/button3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.01"
+                        android:background="@color/textColor"
+                        android:text="@string/Reset"
+                        android:textColor="#ffc2e8c1"
+                        android:textSize="14.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@id/layout2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/carbon_dioxide"
+                        android:textColor="#ffc2e8c1"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textcarbon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="000.00kg"
+                        android:textColor="#ffc2e8c1"
+                        android:textSize="18.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@id/layout3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Cumulative_electricity_bill"
+                        android:textColor="#ffffff53"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textBill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.001"
+                        android:text="0.00"
+                        android:textColor="#ffffff53"
+                        android:textSize="18.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text9"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/AC_frequency"
+                        android:textColor="#ffb42363"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textAC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="00.0Hz"
+                        android:textColor="#ffb42363"
+                        android:textSize="18.0sp" />
+
+                    <Button
+                        android:id="@id/button2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.01"
+                        android:background="@color/textColor"
+                        android:text="@string/Reset"
+                        android:textColor="#ffb42363"
+                        android:textSize="14.0sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text10"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Internal_temperature"
+                        android:textColor="#ffef2047"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textInternal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="00℃/32℉"
+                        android:textColor="#ffef2047"
+                        android:textSize="18.0sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="23.0dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@id/text11"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="center"
+                        android:text="@string/Electricity_price_setting"
+                        android:textColor="#ffd3b8ab"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textElectricity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.001"
+                        android:background="@color/textColor"
+                        android:text="0.00"
+                        android:textColor="#ffd3b8ab"
+                        android:textSize="18.0sp" />
+
+                    <TextView
+                        android:id="@id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:textColor="#ffd3b8ab"
+                        android:textSize="18.0sp" />
+
+                    <LinearLayout
+                        android:id="@id/blackLight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <RadioGroup
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1.0"
+                            android:orientation="horizontal">
+
+                            <CheckBox
+                                android:id="@id/checkBox"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.0"
+                                android:text="ON"
+                                android:textColor="#ffd3b8ab" />
+
+                            <CheckBox
+                                android:id="@id/checkBox2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.0"
+                                android:text="OFF"
+                                android:textColor="#ffd3b8ab" />
+                        </RadioGroup>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@id/layoutBL"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_marginRight="10.0dip"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@id/textBL"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1.0"
+                            android:text="@string/BackLight"
+                            android:textColor="#ff7cbfc4"
+                            android:textSize="18.0sp" />
+
+                        <TextView
+                            android:id="@id/textBLV"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.0"
+                            android:background="@color/textColor"
+                            android:gravity="center"
+                            android:text="0S"
+                            android:textAlignment="center"
+                            android:textColor="#ff7cbfc4"
+                            android:textSize="18.0sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#ff263030">
+
+                    <Button
+                        android:id="@id/button_set"
+                        android:layout_width="70.0dip"
+                        android:layout_height="70.0dip"
+                        android:layout_marginStart="16.0dip"
+                        android:layout_weight="0.3"
+                        android:background="@drawable/select_bg"
+                        android:text="@string/SteUp"
+                        android:textSize="14.0sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:id="@id/b_layout"
+                        android:layout_width="130.0dip"
+                        android:layout_height="60.0dip"
+                        android:layout_marginStart="8.0dip"
+                        android:layout_marginTop="5.0dip"
+                        android:layout_marginEnd="8.0dip"
+                        android:layout_weight="0.3"
+                        android:background="@drawable/b_bg"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toStartOf="@id/button_ok"
+                        app:layout_constraintStart_toEndOf="@id/button_set"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <Button
+                            android:id="@id/button_jian"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.0"
+                            android:background="@drawable/l_select_bg"
+                            android:text="-"
+                            android:textSize="24.0sp" />
+
+                        <Button
+                            android:id="@id/button_jia"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.0"
+                            android:background="@drawable/r_select_bg"
+                            android:text="+"
+                            android:textSize="24.0sp" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@id/button_ok"
+                        android:layout_width="70.0dip"
+                        android:layout_height="70.0dip"
+                        android:layout_marginEnd="16.0dip"
+                        android:layout_weight="1.0"
+                        android:background="@drawable/select_bg"
+                        android:text="@string/confirm"
+                        android:textSize="14.0sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

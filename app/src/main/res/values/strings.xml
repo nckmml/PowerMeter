@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">PowerMeter</string>
+    <string name="button_bluetooth">Bluetooth</string>
+    <string name="Voltage">Voltage: </string>
+    <string name="AC">AC</string>
+    <string name="DC">DC</string>
+    <string name="USB">USB</string>
+    <string name="Current">Current: </string>
+    <string name="power">Power:</string>
+    <string name="Power_Factor">Power factor:</string>
+    <string name="Reset">Reset</string>
+    <string name="Cumulative_capacity">Capacity:</string>
+    <string name="Cumulative_power">Electricity:</string>
+    <string name="KWH">kWh</string>
+    <string name="carbon_dioxide">Carbon dioxide:</string>
+    <string name="Cumulative_electricity_bill">Electricity charges:</string>
+    <string name="AC_frequency">AC freq:</string>
+    <string name="time_record">Time record:</string>
+    <string name="Internal_temperature">Internal temperature:</string>
+    <string name="Electricity_price_setting">Elec. price setting:</string>
+    <string name="Backlight">Backlight:</string>
+    <string name="Long_black">Long black</string>
+    <string name="Long_bright">Long bright</string>
+    <string name="second">s</string>
+    <string name="BackLight">BL:</string>
+    <string name="SteUp">SETUP</string>
+    <string name="confirm">Enter</string>
+    <string name="button_export">Export</string>
+</resources>
