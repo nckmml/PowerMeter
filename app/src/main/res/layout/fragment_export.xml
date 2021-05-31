@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".ui.export.ExportFragment">
 
+    <Button
+        android:id="@id/button_export"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="exportExcel"
+        android:text="@string/button_export" />
+
     <TextView
         android:id="@+id/text_export"
         android:layout_width="match_parent"
