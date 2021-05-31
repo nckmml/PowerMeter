@@ -106,7 +106,7 @@
                         android:gravity="center"
                         android:text="@string/Voltage"
                         android:textAllCaps="false"
-                        android:textColor="#ffbfd84f"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -115,7 +115,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="000.0V"
-                        android:textColor="#ffbfd84f"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
                 </LinearLayout>
 
@@ -130,7 +130,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/Current"
-                        android:textColor="#ff308b9e"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -139,7 +139,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="0.000A"
-                        android:textColor="#ff308b9e"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
                 </LinearLayout>
 
@@ -154,7 +154,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/power"
-                        android:textColor="#ffe4b86a"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -163,7 +163,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="0000.0W"
-                        android:textColor="#ffe4b86a"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
                 </LinearLayout>
 
@@ -178,7 +178,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/Power_Factor"
-                        android:textColor="#ff137363"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -187,7 +187,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="0.00PF"
-                        android:textColor="#ff137363"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <Button
@@ -198,7 +198,7 @@
                         android:background="@color/textColor"
                         android:text="@string/Reset"
                         android:onClick="reset1"
-                        android:textColor="#ff137363"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="14.0sp"
                         android:visibility="gone" />
                 </LinearLayout>
@@ -215,7 +215,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/Cumulative_power"
-                        android:textColor="#ffd8a14c"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -224,7 +224,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="0000.0"
-                        android:textColor="#ffd8a14c"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <Button
@@ -235,7 +235,7 @@
                         android:background="@color/textColor"
                         android:text="@string/Reset"
                         android:onClick="reset3"
-                        android:textColor="#ffc2e8c1"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="14.0sp" />
                 </LinearLayout>
 
@@ -251,7 +251,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/carbon_dioxide"
-                        android:textColor="#ffc2e8c1"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -260,7 +260,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="000.00kg"
-                        android:textColor="#ffc2e8c1"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
                 </LinearLayout>
 
@@ -276,7 +276,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/Cumulative_electricity_bill"
-                        android:textColor="#ffffff53"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -285,7 +285,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.001"
                         android:text="0.00"
-                        android:textColor="#ffffff53"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
                 </LinearLayout>
 
@@ -300,7 +300,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/AC_frequency"
-                        android:textColor="#ffb42363"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -309,7 +309,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="00.0Hz"
-                        android:textColor="#ffb42363"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <Button
@@ -320,7 +320,7 @@
                         android:background="@color/textColor"
                         android:text="@string/Reset"
                         android:onClick="reset2"
-                        android:textColor="#ffb42363"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="14.0sp"
                         android:visibility="gone" />
                 </LinearLayout>
@@ -336,7 +336,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/Internal_temperature"
-                        android:textColor="#ffef2047"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -345,7 +345,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="00℃/32℉"
-                        android:textColor="#ffef2047"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
                 </LinearLayout>
 
@@ -360,7 +360,7 @@
                         android:layout_height="fill_parent"
                         android:gravity="center"
                         android:text="@string/Electricity_price_setting"
-                        android:textColor="#ffd3b8ab"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -368,9 +368,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.001"
-                        android:background="@color/textColor"
                         android:text="0.00"
-                        android:textColor="#ffd3b8ab"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <TextView
@@ -378,7 +377,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
-                        android:textColor="#ffd3b8ab"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="18.0sp" />
 
                     <LinearLayout
@@ -400,7 +399,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1.0"
                                 android:text="ON"
-                                android:textColor="#ffd3b8ab" />
+                                android:textColor="?android:attr/textColorPrimary" />
 
                             <CheckBox
                                 android:id="@id/checkBox2"
@@ -408,7 +407,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1.0"
                                 android:text="OFF"
-                                android:textColor="#ffd3b8ab" />
+                                android:textColor="?android:attr/textColorPrimary" />
                         </RadioGroup>
                     </LinearLayout>
 
@@ -425,7 +424,7 @@
                             android:layout_height="fill_parent"
                             android:layout_weight="1.0"
                             android:text="@string/BackLight"
-                            android:textColor="#ff7cbfc4"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:textSize="18.0sp" />
 
                         <TextView
@@ -433,11 +432,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0"
-                            android:background="@color/textColor"
                             android:gravity="center"
                             android:text="0S"
                             android:textAlignment="center"
-                            android:textColor="#ff7cbfc4"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:textSize="18.0sp" />
                     </LinearLayout>
                 </LinearLayout>
