@@ -5,6 +5,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,9 +28,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.noid.powermeter.Model.BLEService;
-import com.noid.powermeter.Model.BluetoothDeviceList;
 import com.noid.powermeter.Model.UUIDs;
+import com.noid.powermeter.databinding.ActivityMainBinding;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -87,10 +93,23 @@ public class MainActivity extends AppCompatActivity {
 
     private int f0 = 0;
 
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_textdisplay, R.id.navigation_bluetoothlist, R.id.navigation_export)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(binding.navView, navController);
         initBluetooth();
         initView();
         textVoltage = (TextView)findViewById(R.id.textVoltage);
@@ -165,10 +184,6 @@ public class MainActivity extends AppCompatActivity {
                     System.exit(1);
                 }
             });
-
-    public void showBluetoothList(View view) {
-        startActivity(new Intent(this, BluetoothDeviceList.class));
-    }
 
     private void createFile(String mimeType, String fileName) {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);

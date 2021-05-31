@@ -26,4 +26,14 @@
     <string name="SteUp">SETUP</string>
     <string name="confirm">Enter</string>
     <string name="button_export">Export</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_textdisplay">Text</string>
+    <string name="title_bluetoothlist">Bluetooth</string>
+    <string name="title_export">Export</string>
+    <string name="Warning">Warning</string>
+    <string name="cancel">Cancel</string>
+    <string name="Clear">The cumulative power, carbon dioxide, the cumulative charge will be reset</string>
+    <string name="Clear1">Cumulative capacity will be cleared</string>
+    <string name="Clear2">Cumulative time will be cleared</string>
+    <string name="Clear21">The cumulative power will be reset</string>
 </resources>

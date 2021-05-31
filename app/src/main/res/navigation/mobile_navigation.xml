@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_textdisplay">
+
+    <fragment
+        android:id="@+id/navigation_textdisplay"
+        android:name="com.noid.powermeter.ui.textdisplay.TextdisplayFragment"
+        android:label="@string/title_textdisplay"
+        tools:layout="@layout/fragment_textdisplay" />
+
+    <fragment
+        android:id="@+id/navigation_bluetoothlist"
+        android:name="com.noid.powermeter.ui.bluetoothlist.BluetoothlistFragment"
+        android:label="@string/title_bluetoothlist"
+        tools:layout="@layout/fragment_bluetoothlist" />
+
+    <fragment
+        android:id="@+id/navigation_export"
+        android:name="com.noid.powermeter.ui.export.ExportFragment"
+        android:label="@string/title_export"
+        tools:layout="@layout/fragment_export" />
+</navigation>

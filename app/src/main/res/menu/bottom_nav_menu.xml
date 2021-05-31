@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_textdisplay"
+        android:icon="@drawable/ic_baseline_text_snippet_24"
+        android:title="@string/title_textdisplay" />
+
+    <item
+        android:id="@+id/navigation_bluetoothlist"
+        android:icon="@drawable/ic_baseline_bluetooth_24"
+        android:title="@string/title_bluetoothlist" />
+
+    <item
+        android:id="@+id/navigation_export"
+        android:icon="@drawable/ic_baseline_save_alt_24"
+        android:title="@string/title_export" />
+
+</menu>
