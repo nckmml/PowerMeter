@@ -26,7 +26,7 @@ public class TextdisplayFragment extends Fragment {
 
         binding = FragmentTextdisplayBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
+        /*
         final TextView textView = binding.textTextdisplay;
         textdisplayViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -34,6 +34,7 @@ public class TextdisplayFragment extends Fragment {
                 textView.setText(s);
             }
         });
+         */
         return root;
     }
 

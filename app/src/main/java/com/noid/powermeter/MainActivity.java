@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -26,7 +27,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.LinearLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.noid.powermeter.Model.BLEService;
@@ -84,10 +84,10 @@ public class MainActivity extends AppCompatActivity {
     Button button2;
     Button button3;
 
-    LinearLayout layout1;
-    LinearLayout layout2;
-    LinearLayout layout3;
-    LinearLayout layoutBL;
+    ConstraintLayout layout1;
+    ConstraintLayout layout2;
+    ConstraintLayout layout3;
+    ConstraintLayout layoutBL;
 
     private static final int WRITE_REQUEST_CODE = 43;
 
@@ -137,10 +137,7 @@ public class MainActivity extends AppCompatActivity {
         button = (Button)findViewById(R.id.button);
         button2 = (Button)findViewById(R.id.button2);
         button3 = (Button)findViewById(R.id.button3);
-        layout1 = (LinearLayout)findViewById(R.id.layout1);
-        layout2 = (LinearLayout)findViewById(R.id.layout2);
-        layout3 = (LinearLayout)findViewById(R.id.layout3);
-        layoutBL = (LinearLayout)findViewById(R.id.layoutBL);
+        layoutBL = (ConstraintLayout)findViewById(R.id.layoutBL);
 
         Intent intent = new Intent(MainActivity.this, NotificationService.class);
         intent.setAction(NotificationService.ACTION_START_NOTIFICATION_SERVICE);
@@ -292,9 +289,6 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 this.button.setVisibility(View.GONE);
                 this.button2.setVisibility(View.GONE);
-                this.layout1.setBackgroundColor(getResources().getColor(R.color.colorlayoutbg));
-                this.layout2.setBackgroundColor(getResources().getColor(R.color.colorlayoutbg));
-                this.layout3.setBackgroundColor(getResources().getColor(R.color.colorlayoutbg));
                 this.layoutBL.setVisibility(View.VISIBLE);
                 this.textAc.setBackgroundResource(0);
                 this.textDc.setBackgroundResource(R.drawable.text_bg);
@@ -338,9 +332,6 @@ public class MainActivity extends AppCompatActivity {
                 this.button.setVisibility(View.VISIBLE);
                 this.button2.setVisibility(View.VISIBLE);
                 this.layoutBL.setVisibility(View.VISIBLE);
-                this.layout1.setBackgroundColor(getResources().getColor(R.color.colorlayoutbg));
-                this.layout2.setBackgroundColor(getResources().getColor(R.color.colorlayoutbg));
-                this.layout3.setBackgroundColor(getResources().getColor(R.color.colorlayoutbg));
                 this.textAc.setBackgroundResource(R.drawable.text_bg);
                 this.textDc.setBackgroundResource(0);
                 this.textUsb.setBackgroundResource(R.drawable.text_bg);
@@ -401,9 +392,6 @@ public class MainActivity extends AppCompatActivity {
                 this.button.setVisibility(View.VISIBLE);
                 this.button2.setVisibility(View.VISIBLE);
                 this.layoutBL.setVisibility(View.GONE);
-                this.layout1.setBackgroundColor(getResources().getColor(R.color.colorlayoutbgclear));
-                this.layout2.setBackgroundColor(getResources().getColor(R.color.colorlayoutbgclear));
-                this.layout3.setBackgroundColor(getResources().getColor(R.color.colorlayoutbgclear));
                 this.textAc.setBackgroundResource(R.drawable.text_bg);
                 this.textDc.setBackgroundResource(R.drawable.text_bg);
                 this.textUsb.setBackgroundResource(0);

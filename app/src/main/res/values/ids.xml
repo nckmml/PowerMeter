@@ -17,14 +17,14 @@
     <item name="text5" type="id" />
     <item name="textFactor" type="id" />
     <item name="button" type="id" />
-    <item name="layout1" type="id" />
+    <item name="electricityDisplay" type="id" />
     <item name="text6" type="id" />
     <item name="textCumulative" type="id" />
     <item name="button3" type="id" />
-    <item name="layout2" type="id" />
+    <item name="co2Display" type="id" />
     <item name="text7" type="id" />
     <item name="textcarbon" type="id" />
-    <item name="layout3" type="id" />
+    <item name="electricityChargesDisplay" type="id" />
     <item name="text8" type="id" />
     <item name="textBill" type="id" />
     <item name="text9" type="id" />
@@ -47,4 +47,5 @@
     <item name="button_jian" type="id" />
     <item name="button_jia" type="id" />
     <item name="button_export" type="id" />
+    <item name="barrier4" type="id" />
 </resources>
