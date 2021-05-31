@@ -81,7 +81,7 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
 
         binding = FragmentBluetoothlistBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
+        /*
         final TextView textView = binding.textBluetoothlist;
         bluetoothlistViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -89,11 +89,10 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
                 textView.setText(s);
             }
         });
+         */
         this.lv_device = binding.ListDevice;
         scanDevice();
-        this.back = binding.back;
         this.lv_device.setOnItemClickListener(this.onItemClickListener);
-        this.back.setOnClickListener(this);
         this.receiver = new value();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BLEService.BLUETOOTH_DEVICE);
