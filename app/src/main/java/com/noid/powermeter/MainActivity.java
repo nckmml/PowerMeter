@@ -7,9 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -37,6 +39,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private byte[] mValue;
+
+    private int adu;
 
     private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
@@ -268,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         Float valueOf = Float.valueOf(0.0f);
         Float valueOf2 = Float.valueOf(0.0f);
         Float valueOf3 = Float.valueOf(0.0f);
-        int adu = bArr[3];
+        this.adu = bArr[3];
         switch (bArr[3]) {
             case 1:
                 this.button.setVisibility(View.GONE);
@@ -451,6 +455,82 @@ public class MainActivity extends AppCompatActivity {
         this.listData.add(Float.valueOf(valueOf3.floatValue() / 6.0f));
         this.timeList.add(this.df.format(Long.valueOf(System.currentTimeMillis())));
         this.listData.clear();
+    }
+
+    private void DialogClear(String str, final int i) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.Warning));
+        builder.setMessage(str);
+        builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+            private int anonVar;
+            public void onClick(DialogInterface dialogInterface, int i) {
+                MainActivity.this.send(MainActivity.this.adu, anonVar, 0, 0, 0);
+            }
+            private DialogInterface.OnClickListener init(int var){
+                anonVar = var;
+                return this;
+            }
+        }.init(i)).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        }).show();
+    }
+
+    private void send(int i, int i2, int i3, int i4, int i5) {
+        byte[] bArr = new byte[10];
+        bArr[0] = -1;
+        bArr[1] = 85;
+        bArr[2] = 17;
+        bArr[3] = (byte) i;
+        Log.i("DEBUG","bArr[3] = "+bArr[3]);
+        bArr[4] = (byte) i2;
+        Log.i("DEBUG","bArr[4] = "+bArr[4]);
+        bArr[6] = (byte) i3;
+        Log.i("DEBUG","bArr[6] = "+bArr[6]);
+        bArr[7] = (byte) i4;
+        Log.i("DEBUG","bArr[7] = "+bArr[7]);
+        bArr[8] = (byte) i5;
+        Log.i("DEBUG","bArr[8] = "+bArr[8]);
+        bArr[9] = (byte) ((((((((bArr[2] & 255) + (bArr[3] & 255)) + (bArr[4] & 255)) + (bArr[5] & 255)) + (bArr[6] & 255)) + (bArr[7] & 255)) + (bArr[8] & 255)) ^ 68);
+        Log.i("校验码", ((bArr[2] & 255) + (bArr[3] & 255) + (bArr[4] & 255) + (bArr[5] & 255) + (bArr[6] & 255) + (bArr[7] & 255) + (bArr[8] & 255)) + "");
+        BLEService.send(bArr);
+    }
+
+    public void reset1(View view){
+        DialogClear(getString(R.string.Clear1), 2);
+    }
+
+    public void reset2(View view){
+        if (this.adu == 2) {
+            this.f0 = 0;
+        } else {
+            DialogClear(getString(R.string.Clear2), 3);
+        }
+    }
+
+    public void reset3(View view){
+        if (this.adu != 3) {
+            DialogClear(getString(R.string.Clear), 1);
+        } else {
+            DialogClear(getString(R.string.Clear21), 1);
+        }
+    }
+
+    public void sendSet(View view){
+        send(this.adu, 49, 0, 0, 0);
+    }
+
+    public void sendMinus(View view){
+        send(this.adu, 52, 0, 0, 0);
+    }
+
+    public void sendPlus(View view){
+        send(this.adu, 51, 0, 0, 0);
+    }
+
+    public void sendOk(View view){
+        send(this.adu, 50, 0, 0, 0);
     }
 
     public class value extends BroadcastReceiver {

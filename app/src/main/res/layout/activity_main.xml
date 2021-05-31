@@ -218,6 +218,7 @@
                         android:layout_weight="0.01"
                         android:background="@color/textColor"
                         android:text="@string/Reset"
+                        android:onClick="reset1"
                         android:textColor="#ff137363"
                         android:textSize="14.0sp"
                         android:visibility="gone" />
@@ -254,6 +255,7 @@
                         android:layout_weight="0.01"
                         android:background="@color/textColor"
                         android:text="@string/Reset"
+                        android:onClick="reset3"
                         android:textColor="#ffc2e8c1"
                         android:textSize="14.0sp" />
                 </LinearLayout>
@@ -338,6 +340,7 @@
                         android:layout_weight="0.01"
                         android:background="@color/textColor"
                         android:text="@string/Reset"
+                        android:onClick="reset2"
                         android:textColor="#ffb42363"
                         android:textSize="14.0sp"
                         android:visibility="gone" />
@@ -473,6 +476,7 @@
                         android:layout_weight="0.3"
                         android:background="@drawable/select_bg"
                         android:text="@string/SteUp"
+                        android:onClick="sendSet"
                         android:textSize="14.0sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -498,6 +502,7 @@
                             android:layout_weight="1.0"
                             android:background="@drawable/l_select_bg"
                             android:text="-"
+                            android:onClick="sendMinus"
                             android:textSize="24.0sp" />
 
                         <Button
@@ -507,6 +512,7 @@
                             android:layout_weight="1.0"
                             android:background="@drawable/r_select_bg"
                             android:text="+"
+                            android:onClick="sendPlus"
                             android:textSize="24.0sp" />
                     </LinearLayout>
 
@@ -518,6 +524,7 @@
                         android:layout_weight="1.0"
                         android:background="@drawable/select_bg"
                         android:text="@string/confirm"
+                        android:onClick="sendOk"
                         android:textSize="14.0sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
