@@ -32,6 +32,8 @@ import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,6 +56,12 @@ public class BLEService extends Service {
     private Context context;
     private FragmentTextdisplayBinding binding;
     private byte[] mValue;
+    private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+    private List<Float> list0 = new ArrayList();
+    private List<Float> list1 = new ArrayList();
+    private List<Float> list2 = new ArrayList();
+    private List<Float> listData = new ArrayList();
+    private List<String> timeList = new ArrayList();
 
     public BLEService(){}
 
@@ -119,6 +127,9 @@ public class BLEService extends Service {
             byte[] bArr = bluetoothGattCharacteristic.getValue();
             StringBuilder dataBuilder = new StringBuilder();
             Float f;
+            Float f2;
+            Float valueOf = Float.valueOf(0.0f);
+            Float valueOf2 = Float.valueOf(0.0f);
             String str4;
             String str5;
             String str6;
@@ -138,8 +149,12 @@ public class BLEService extends Service {
                             bArr = mValue;
                             switch (bArr[3]) {
                                 case 1:
+                                    f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d));
+                                    f2 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d));
                                     break;
                                 case 2:
+                                    f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d));
+                                    f2 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d));
                                     break;
                                 case 3:
                                     f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d));
@@ -168,6 +183,7 @@ public class BLEService extends Service {
                                         str6 = "" + ((int) bArr[26]);
                                     }
                                     int i3 = ((bArr[21] & 255) * 256) + (bArr[22] & 255);
+                                    f2 = valueOf4;
                                     dataBuilder.append("Voltage: ");
                                     dataBuilder.append(decimalFormat5.format(f) + "V\n");
                                     dataBuilder.append("Current: ");
@@ -185,8 +201,18 @@ public class BLEService extends Service {
                                     updateNotification(dataBuilder.toString());
                                     break;
                                 default:
+                                    f = valueOf;
+                                    f2 = valueOf2;
                                     break;
                             }
+                            list0.add(f);
+                            list1.add(f2);
+                            list2.add(valueOf3);
+                            listData.add(f);
+                            listData.add(Float.valueOf(f2.floatValue() * 5.0f));
+                            listData.add(Float.valueOf(valueOf3.floatValue() / 6.0f));
+                            timeList.add(df.format(Long.valueOf(System.currentTimeMillis())));
+                            listData.clear();
                         }
                     }
             }
@@ -212,6 +238,23 @@ public class BLEService extends Service {
     };
     private SharedPreferences mSharedPreferences;
     String valueStr = "";
+
+    public List returnList(int listi){
+        switch (listi){
+            case 0:
+                return list0;
+            case 1:
+                return list1;
+            case 2:
+                return list2;
+            case 3:
+                return listData;
+            case 4:
+                return timeList;
+            default:
+                return new ArrayList();
+        }
+    }
 
     public void onCreate() {
         super.onCreate();

@@ -16,13 +16,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -40,7 +43,6 @@ import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,11 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
-    private List<Float> list0 = new ArrayList();
-    private List<Float> list1 = new ArrayList();
-    private List<Float> list2 = new ArrayList();
-    private List<Float> listData = new ArrayList();
-    private List<String> timeList = new ArrayList();
     private ArrayList<ArrayList<String>> recordList;
 
     TextView textVoltage;
@@ -84,10 +81,10 @@ public class MainActivity extends AppCompatActivity {
     Button button2;
     Button button3;
 
-    ConstraintLayout layout1;
-    ConstraintLayout layout2;
-    ConstraintLayout layout3;
     ConstraintLayout layoutBL;
+
+    BLEService mService;
+    boolean mBound = false;
 
     private static final int WRITE_REQUEST_CODE = 43;
 
@@ -145,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, BLEService.class);
         intent.setAction(BLEService.ACTION_START_NOTIFICATION_SERVICE);
         startForegroundService(intent);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
         value receiver = new value();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BLEService.ALL_VALUE);
@@ -242,12 +240,12 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<ArrayList<String>> getRecordData() {
         this.recordList = new ArrayList<>();
-        for (int i = 0; i < this.timeList.size(); i++) {
+        for (int i = 0; i < mService.returnList(4).size(); i++) {
             ArrayList<String> arrayList = new ArrayList<>();
-            arrayList.add(this.timeList.get(i));
-            arrayList.add(String.valueOf(this.list0.get(i)));
-            arrayList.add(String.valueOf(this.list1.get(i)));
-            arrayList.add(String.valueOf(this.list2.get(i)));
+            arrayList.add(String.valueOf(mService.returnList(4).get(i)));
+            arrayList.add(String.valueOf(mService.returnList(0).get(i)));
+            arrayList.add(String.valueOf(mService.returnList(1).get(i)));
+            arrayList.add(String.valueOf(mService.returnList(2).get(i)));
             this.recordList.add(arrayList);
         }
         return this.recordList;
@@ -446,14 +444,6 @@ public class MainActivity extends AppCompatActivity {
                 f2 = valueOf2;
                 break;
         }
-        this.list0.add(f);
-        this.list1.add(f2);
-        this.list2.add(valueOf3);
-        this.listData.add(f);
-        this.listData.add(Float.valueOf(f2.floatValue() * 5.0f));
-        this.listData.add(Float.valueOf(valueOf3.floatValue() / 6.0f));
-        this.timeList.add(this.df.format(Long.valueOf(System.currentTimeMillis())));
-        this.listData.clear();
     }
 
     private void DialogClear(String str, final int i) {
@@ -592,6 +582,24 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            BLEService.MyBinder binder = (BLEService.MyBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
     private String ReservedInt(int i, String str) {
         int intValue = Integer.valueOf(str).intValue();
         String str2 = intValue + "";
