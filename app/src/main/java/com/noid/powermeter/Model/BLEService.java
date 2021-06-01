@@ -1,5 +1,6 @@
 package com.noid.powermeter.Model;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,8 +27,11 @@ import androidx.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.R;
+import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,6 +52,8 @@ public class BLEService extends Service {
     public static BluetoothGatt mBluetoothGatt;
     private MyBinder binder = new MyBinder();
     private Context context;
+    private FragmentTextdisplayBinding binding;
+    private byte[] mValue;
 
     public BLEService(){}
 
@@ -110,6 +116,80 @@ public class BLEService extends Service {
         }
 
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+            byte[] bArr = bluetoothGattCharacteristic.getValue();
+            StringBuilder dataBuilder = new StringBuilder();
+            Float f;
+            String str4;
+            String str5;
+            String str6;
+            DecimalFormat decimalFormat = new DecimalFormat("0.0");
+            DecimalFormat decimalFormat5 = new DecimalFormat("00.00");
+            DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
+            DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
+            Float valueOf3 = Float.valueOf(0.0f);
+            Log.i("DEBUG", "bArr.length"+bArr.length);
+            if (bArr.length >= 3){
+                if ((bArr[0] & 255) == 255 && bArr[2] == 1) {
+                    mValue = bArr;
+                }
+                    if ((bArr[0] & 255) != 255 && bArr.length >= 3) {
+                        mValue = UUIDs.concat(mValue, bArr);
+                        if (mValue.length == 36){
+                            bArr = mValue;
+                            switch (bArr[3]) {
+                                case 1:
+                                    break;
+                                case 2:
+                                    break;
+                                case 3:
+                                    f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d));
+                                    Float valueOf4 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 100.0d));
+                                    valueOf3 = Float.valueOf(f.floatValue() * valueOf4.floatValue());
+                                    String format6 = decimalFormat11.format(valueOf3);
+                                    String substring6 = format6.substring(0, format6.length() + -4);
+                                    StringBuilder sb3 = new StringBuilder();
+                                    sb3.append(ReservedInt(5, (((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256) + (bArr[12] & 255)) + ""));
+                                    sb3.append("mAh\n");
+                                    if (((bArr[23] & 255) * 256) + (bArr[24] & 255) < 10) {
+                                        str4 = "00" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
+                                    } else if (((bArr[23] & 255) * 256) + (bArr[24] & 255) < 100) {
+                                        str4 = "0" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
+                                    } else {
+                                        str4 = "" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
+                                    }
+                                    if (bArr[25] < 10) {
+                                        str5 = "0" + ((int) bArr[25]);
+                                    } else {
+                                        str5 = "" + ((int) bArr[25]);
+                                    }
+                                    if (bArr[26] < 10) {
+                                        str6 = "0" + ((int) bArr[26]);
+                                    } else {
+                                        str6 = "" + ((int) bArr[26]);
+                                    }
+                                    int i3 = ((bArr[21] & 255) * 256) + (bArr[22] & 255);
+                                    dataBuilder.append("Voltage: ");
+                                    dataBuilder.append(decimalFormat5.format(f) + "V\n");
+                                    dataBuilder.append("Current: ");
+                                    dataBuilder.append(decimalFormat5.format(valueOf4) + "A\n");
+                                    dataBuilder.append("Power: ");
+                                    dataBuilder.append(substring6 + "W");
+                                    dataBuilder.append("Capacity: ");
+                                    dataBuilder.append(sb3.toString());
+                                    dataBuilder.append("Electricity: ");
+                                    dataBuilder.append(decimalFormat10.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "Wh\n");
+                                    dataBuilder.append("Time record: ");
+                                    dataBuilder.append(str4 + ":" + str5 + ":" + str6 + "\n");
+                                    dataBuilder.append("Internal Temperature: ");
+                                    dataBuilder.append(i3 + "℃/" + decimalFormat.format((((double) i3) * 1.8d) + 32.0d) + "℉");
+                                    updateNotification(dataBuilder.toString());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+            }
             if (bluetoothGattCharacteristic != null) {
                 bluetoothGattCharacteristic.getUuid().toString();
                 BLEService.this.broadcastByte(BLEService.ALL_VALUE, bluetoothGattCharacteristic.getValue());
@@ -165,7 +245,23 @@ public class BLEService extends Service {
 
     private void startForegroundService()
     {
-        Log.d(TAG_NOTIFICATION_SERVICE, "Start Notification service.");
+        startForeground(1, getNotification(""));
+    }
+
+    private void updateNotification(String text) {
+
+        Notification notification = getNotification(text);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(1, notification);
+    }
+
+    private Notification getNotification(String text){
+
+        // The PendingIntent to launch our activity if the user selects
+        // this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this,
+                0, new Intent(this, MainActivity.class), 0);
 
         // Create notification default intent.
         Intent intent = new Intent();
@@ -175,7 +271,8 @@ public class BLEService extends Service {
                 default_notification_channel_id )
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle( "PowerMeter" )
-                .setContentText( "Bluetooth connection is running" );
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
+                .setContentText(text);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         int importance = NotificationManager.IMPORTANCE_LOW;
         NotificationChannel notificationChannel = new
@@ -183,8 +280,7 @@ public class BLEService extends Service {
         mBuilder.setChannelId( NOTIFICATION_CHANNEL_ID ) ;
         assert mNotificationManager != null;
         mNotificationManager.createNotificationChannel(notificationChannel) ;
-        // Start foreground service.
-        startForeground(1, mBuilder.build());
+        return mBuilder.build();
     }
 
     private void stopForegroundService()
@@ -305,6 +401,50 @@ public class BLEService extends Service {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(UUIDs.UUID_NOTIFY));
             characteristic.setValue(bArr);
             mBluetoothGatt.writeCharacteristic(characteristic);
+        }
+    }
+
+    private String ReservedInt(int i, String str) {
+        int intValue = Integer.valueOf(str).intValue();
+        String str2 = intValue + "";
+        switch (i) {
+            case 2:
+                if (intValue >= 10) {
+                    return str2;
+                }
+                return "0" + intValue;
+            case 3:
+                if (intValue < 10) {
+                    return "00" + intValue;
+                } else if (intValue >= 100) {
+                    return str2;
+                } else {
+                    return "0" + intValue;
+                }
+            case 4:
+                if (intValue < 10) {
+                    return "000" + intValue;
+                } else if (intValue < 100) {
+                    return "00" + intValue;
+                } else if (intValue >= 1000) {
+                    return str2;
+                } else {
+                    return "0" + intValue;
+                }
+            case 5:
+                if (intValue < 10) {
+                    return "0000" + intValue;
+                } else if (intValue < 100) {
+                    return "000" + intValue;
+                } else if (intValue < 1000) {
+                    return "00" + intValue;
+                } else if (intValue >= 10000) {
+                    return str2;
+                } else {
+                    return "0" + intValue;
+                }
+            default:
+                return str2;
         }
     }
 }
