@@ -195,10 +195,13 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             outputStream = getContentResolver().openOutputStream(data.getData());
                             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+                            Log.i("File writer", "started writing to file");
                             bw.write("Time,Voltage,Current,Power\n");
-                            for (int i=0; i<getRecordData().size(); i++){
-                                bw.write(getRecordData().get(i).get(0).toString()+","+getRecordData().get(i).get(1).toString()+","+getRecordData().get(i).get(2).toString()+","+getRecordData().get(i).get(3).toString()+"\n");
+                            ArrayList<ArrayList<String>> templist = new ArrayList<>(getRecordData());
+                            for (int i=0; i<templist.size(); i++){
+                                bw.write(templist.get(i).get(0).toString()+","+templist.get(i).get(1).toString()+","+templist.get(i).get(2).toString()+","+templist.get(i).get(3).toString()+"\n");
                             }
+                            Log.i("File writer", "Finished writing to file");
                             bw.flush();
                             bw.close();
                         } catch (IOException e) {
@@ -240,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<ArrayList<String>> getRecordData() {
         this.recordList = new ArrayList<>();
+        Log.i("getRecordData","started getting record data");
         for (int i = 0; i < mService.returnList(4).size(); i++) {
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(String.valueOf(mService.returnList(4).get(i)));
@@ -248,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
             arrayList.add(String.valueOf(mService.returnList(2).get(i)));
             this.recordList.add(arrayList);
         }
+        Log.i("getRecordData", "finished getting record data");
         return this.recordList;
     }
 
