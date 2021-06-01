@@ -138,17 +138,13 @@ public class MainActivity extends AppCompatActivity {
         button2 = (Button)findViewById(R.id.button2);
         button3 = (Button)findViewById(R.id.button3);
         layoutBL = (ConstraintLayout)findViewById(R.id.layoutBL);
-
-        Intent intent = new Intent(MainActivity.this, NotificationService.class);
-        intent.setAction(NotificationService.ACTION_START_NOTIFICATION_SERVICE);
-
-        startForegroundService(intent);
-
     }
 
     private void initView() {
         Log.i("DEBUG", "startService(BLEService)");
-        startService(new Intent(this, BLEService.class));
+        Intent intent = new Intent(this, BLEService.class);
+        intent.setAction(BLEService.ACTION_START_NOTIFICATION_SERVICE);
+        startForegroundService(intent);
         value receiver = new value();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BLEService.ALL_VALUE);

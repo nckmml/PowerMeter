@@ -1,5 +1,8 @@
 package com.noid.powermeter.Model;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,10 +19,14 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+
+import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 import androidx.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.noid.powermeter.R;
 
 import java.util.List;
 import java.util.Timer;
@@ -30,12 +37,20 @@ public class BLEService extends Service {
     public static final String ALL_VALUE = "ALL_VALUE";
     public static final String BLUETOOTH_DEVICE = "BLUETOOTH_DEVICE";
     public static final String CONTENT_DEVICE = "CONTENT_DEVICE";
+    public static final String NOTIFICATION_CHANNEL_ID = "10001" ;
+    private final static String default_notification_channel_id = "default" ;
+    private static final String TAG_NOTIFICATION_SERVICE = "NOTIFICATION_SERVICE";
+    public static final String ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE";
+    public static final String ACTION_STOP_NOTIFICATION_SERVICE = "ACTION_STOP_NOTIFICATION_SERVICE";
     public static boolean CONTENT_STATUS = false;
     public static String bluetooth_device_address = "";
     private static BluetoothAdapter mAdapter;
     public static BluetoothGatt mBluetoothGatt;
     private MyBinder binder = new MyBinder();
     private Context context;
+
+    public BLEService(){}
+
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass2 */
 
@@ -126,10 +141,61 @@ public class BLEService extends Service {
     }
 
     public int onStartCommand(Intent intent, int i, int i2) {
+        if(intent != null)
+        {
+            String action = intent.getAction();
+
+            switch (action)
+            {
+                case ACTION_START_NOTIFICATION_SERVICE:
+                    startForegroundService();
+                    Toast.makeText(getApplicationContext(), "Foreground service is started.", Toast.LENGTH_LONG).show();
+                    break;
+                case ACTION_STOP_NOTIFICATION_SERVICE:
+                    stopForegroundService();
+                    Toast.makeText(getApplicationContext(), "Foreground service is stopped.", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
         Log.i("test", "ServiceStart");
         scan(true);
         Log.i("Kathy", "onStartCommand - startId = " + i2 + ", Thread ID = " + Thread.currentThread().getId());
         return super.onStartCommand(intent, i, i2);
+    }
+
+    private void startForegroundService()
+    {
+        Log.d(TAG_NOTIFICATION_SERVICE, "Start Notification service.");
+
+        // Create notification default intent.
+        Intent intent = new Intent();
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(BLEService.this,
+                default_notification_channel_id )
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle( "PowerMeter" )
+                .setContentText( "Bluetooth connection is running" );
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel notificationChannel = new
+                NotificationChannel( NOTIFICATION_CHANNEL_ID , "Bluetooth Service" , importance) ;
+        mBuilder.setChannelId( NOTIFICATION_CHANNEL_ID ) ;
+        assert mNotificationManager != null;
+        mNotificationManager.createNotificationChannel(notificationChannel) ;
+        // Start foreground service.
+        startForeground(1, mBuilder.build());
+    }
+
+    private void stopForegroundService()
+    {
+        Log.d(TAG_NOTIFICATION_SERVICE, "Stop foreground service.");
+
+        // Stop foreground service and remove the notification.
+        stopForeground(true);
+
+        // Stop the foreground service.
+        stopSelf();
     }
 
     public void onDestroy() {

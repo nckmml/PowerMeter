@@ -28,12 +28,9 @@
 
         <service
             android:name=".Model.BLEService"
-            android:enabled="true" />
-        <service
-            android:name=".NotificationService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location" />
+            android:foregroundServiceType="location"/>
     </application>
 
 </manifest>
