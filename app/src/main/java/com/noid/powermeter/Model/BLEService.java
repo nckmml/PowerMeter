@@ -166,6 +166,7 @@ public class BLEService extends Service {
                                     String substring = format.substring(0, format.length() + -4);
                                     String format2 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
                                     String substring2 = format2.substring(0, format2.length() + -4);
+                                    valueOf3 = Float.valueOf((float) (((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 10.0d));
                                     int i = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
                                     StringBuilder sb = new StringBuilder();
                                     sb.append(decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
@@ -281,13 +282,13 @@ public class BLEService extends Service {
                                     dataBuilder.append(str4 + ":" + str5 + ":" + str6 + "\n");
                                     dataBuilder.append("Internal Temperature: ");
                                     dataBuilder.append(i3 + "℃/" + decimalFormat.format((((double) i3) * 1.8d) + 32.0d) + "℉");
-                                    updateNotification(dataBuilder.toString());
                                     break;
                                 default:
                                     f = valueOf;
                                     f2 = valueOf2;
                                     break;
                             }
+                            updateNotification(dataBuilder.toString());
                             list0.add(f);
                             list1.add(f2);
                             list2.add(valueOf3);
