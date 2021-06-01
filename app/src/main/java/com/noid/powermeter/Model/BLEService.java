@@ -125,7 +125,6 @@ public class BLEService extends Service {
 
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             byte[] bArr = bluetoothGattCharacteristic.getValue();
-            StringBuilder dataBuilder = new StringBuilder();
             Float f;
             Float f2;
             Float valueOf = Float.valueOf(0.0f);
@@ -134,7 +133,14 @@ public class BLEService extends Service {
             String str5;
             String str6;
             DecimalFormat decimalFormat = new DecimalFormat("0.0");
+            DecimalFormat decimalFormat2 = new DecimalFormat("0.00");
+            DecimalFormat decimalFormat3 = new DecimalFormat("0.000");
+            DecimalFormat decimalFormat4 = new DecimalFormat("0.000000");
             DecimalFormat decimalFormat5 = new DecimalFormat("00.00");
+            DecimalFormat decimalFormat6 = new DecimalFormat("000.0");
+            DecimalFormat decimalFormat7 = new DecimalFormat("000.00");
+            DecimalFormat decimalFormat8 = new DecimalFormat("000.000000");
+            DecimalFormat decimalFormat9 = new DecimalFormat("0000.0");
             DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
             DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
             Float valueOf3 = Float.valueOf(0.0f);
@@ -146,11 +152,39 @@ public class BLEService extends Service {
                     if ((bArr[0] & 255) != 255 && bArr.length >= 3) {
                         mValue = UUIDs.concat(mValue, bArr);
                         if (mValue.length == 36){
+                            StringBuilder dataBuilder = new StringBuilder();
                             bArr = mValue;
                             switch (bArr[3]) {
                                 case 1:
                                     f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d));
                                     f2 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d));
+                                    String format = decimalFormat8.format((((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) * 0.997d);
+                                    String substring = format.substring(0, format.length() + -4);
+                                    String format2 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
+                                    String substring2 = format2.substring(0, format2.length() + -4);
+                                    int i = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.append(decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
+                                    dataBuilder.append("Voltage: ");
+                                    dataBuilder.append(decimalFormat6.format(f) + "V\n");
+                                    dataBuilder.append("Current: ");
+                                    dataBuilder.append(decimalFormat3.format(f2) + "A\n");
+                                    dataBuilder.append("Power: ");
+                                    dataBuilder.append(decimalFormat9.format(valueOf3) + "W\n");
+                                    dataBuilder.append("Power Factor: ");
+                                    dataBuilder.append(decimalFormat2.format(((double) (((bArr[22] & 255) * 256) + (bArr[23] & 255))) / 1000.0d) + "PF\n");
+                                    dataBuilder.append("Electricity: ");
+                                    dataBuilder.append(decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh\n");
+                                    dataBuilder.append("CO2: ");
+                                    dataBuilder.append(substring + "kg\n");
+                                    dataBuilder.append("Electricity charges: ");
+                                    dataBuilder.append(substring2+"\n");
+                                    dataBuilder.append("AC freq: ");
+                                    dataBuilder.append((((double) (((bArr[20] & 255) * 256) + (bArr[21] & 255))) / 10.0d) + "Hz\n");
+                                    dataBuilder.append("Internal Temperature: ");
+                                    dataBuilder.append(i + "℃/" + decimalFormat.format((((double) i) * 1.8d) + 32.0d) + "℉\n");
+                                    dataBuilder.append("Elec. price setting: ");
+                                    dataBuilder.append(sb.toString());
                                     break;
                                 case 2:
                                     f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d));
