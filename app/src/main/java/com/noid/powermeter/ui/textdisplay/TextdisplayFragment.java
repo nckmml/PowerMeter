@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
 public class TextdisplayFragment extends Fragment {
@@ -26,15 +27,6 @@ public class TextdisplayFragment extends Fragment {
 
         binding = FragmentTextdisplayBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        /*
-        final TextView textView = binding.textTextdisplay;
-        textdisplayViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-         */
         return root;
     }
 

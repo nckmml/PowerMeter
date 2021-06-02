@@ -12,6 +12,13 @@
         tools:layout="@layout/fragment_textdisplay" />
 
     <fragment
+        android:id="@+id/navigation_graph"
+        android:name="com.noid.powermeter.ui.graph.GraphFragment"
+        android:label="@string/title_graph"
+        tools:layout="@layout/fragment_graph" />
+
+
+    <fragment
         android:id="@+id/navigation_bluetoothlist"
         android:name="com.noid.powermeter.ui.bluetoothlist.BluetoothlistFragment"
         android:label="@string/title_bluetoothlist"

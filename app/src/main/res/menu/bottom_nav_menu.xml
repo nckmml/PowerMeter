@@ -7,6 +7,11 @@
         android:title="@string/title_textdisplay" />
 
     <item
+        android:id="@+id/navigation_graph"
+        android:icon="@drawable/ic_baseline_show_chart_24"
+        android:title="@string/title_graph" />
+
+    <item
         android:id="@+id/navigation_bluetoothlist"
         android:icon="@drawable/ic_baseline_bluetooth_24"
         android:title="@string/title_bluetoothlist" />

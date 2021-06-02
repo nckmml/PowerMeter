@@ -31,9 +31,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.data.Entry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.noid.powermeter.Model.BLEService;
-import com.noid.powermeter.Model.UUIDs;
+
 import com.noid.powermeter.databinding.ActivityMainBinding;
 
 import java.io.BufferedWriter;
@@ -44,6 +45,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
     private ArrayList<ArrayList<String>> recordList;
+    private ArrayList<ArrayList<Entry>> rawRecordList;
 
     TextView textVoltage;
     TextView textCurrent;
@@ -242,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         createFile("text/csv", "export.csv");
     }
 
-    private ArrayList<ArrayList<String>> getRecordData() {
+    public ArrayList<ArrayList<String>> getRecordData() {
         this.recordList = new ArrayList<>();
         Log.i("getRecordData","started getting record data");
         for (int i = 0; i < mService.returnList(4).size(); i++) {
@@ -255,6 +258,18 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.i("getRecordData", "finished getting record data");
         return this.recordList;
+    }
+
+    public ArrayList<ArrayList<Entry>> getRawRecordData() {
+        this.rawRecordList = new ArrayList<ArrayList<Entry>>();
+        for (int j = 0; j <= 2; j++) {
+            ArrayList<Entry> arrayList = new ArrayList<>();
+            for (int i = 0; i < mService.returnList(4).size(); i++) {
+                arrayList.add(new Entry(i, (float) mService.returnList(j).get(i)));
+            }
+            this.rawRecordList.add(arrayList);
+        }
+        return this.rawRecordList;
     }
 
     private void updateText(HashMap<String, String> datamap){
