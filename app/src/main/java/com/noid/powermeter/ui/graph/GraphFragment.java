@@ -1,22 +1,27 @@
 package com.noid.powermeter.ui.graph;
 
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.google.android.material.color.MaterialColors;
 import com.noid.powermeter.MainActivity;
+import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentGraphBinding;
+
+import java.util.ArrayList;
 
 public class GraphFragment extends Fragment {
 
@@ -53,31 +58,30 @@ public class GraphFragment extends Fragment {
         set1 = new LineDataSet(main.getRawRecordData().get(0), "Voltage");
         set2 = new LineDataSet(main.getRawRecordData().get(1), "Current");
         set3 = new LineDataSet(main.getRawRecordData().get(2), "Power");
-        set1.setColor(Color.RED);
-        set1.setLineWidth(0.5f);
+        set1.setColor(MaterialColors.getColor(root, R.attr.colorPrimary));
+        set1.setLineWidth(1.5f);
         set1.setDrawValues(false);
         set1.setDrawCircles(false);
         set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setDrawFilled(false);
-        set2.setColor(Color.GREEN);
-        set2.setLineWidth(0.5f);
+        set2.setColor(MaterialColors.getColor(root, R.attr.colorSecondary));
+        set2.setLineWidth(1.5f);
         set2.setDrawValues(false);
         set2.setDrawCircles(false);
         set2.setMode(LineDataSet.Mode.LINEAR);
         set2.setDrawFilled(false);
-        set3.setColor(Color.BLUE);
-        set3.setLineWidth(0.5f);
+        set3.setColor(MaterialColors.getColor(root, R.attr.colorError));
+        set3.setLineWidth(1.5f);
         set3.setDrawValues(false);
         set3.setDrawCircles(false);
         set3.setMode(LineDataSet.Mode.LINEAR);
         set3.setDrawFilled(false);
         LineData data = new LineData(set1, set2, set3);
         chart.setData(data);
-        chart.animateX(1500);
         Legend l = chart.getLegend();
         l.setForm(Legend.LegendForm.LINE);
         l.setTextSize(11f);
-        l.setTextColor(Color.WHITE);
+        l.setTextColor(MaterialColors.getColor(root, R.attr.colorOnSurface));
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
@@ -85,9 +89,19 @@ public class GraphFragment extends Fragment {
         chart.getAxisLeft().setEnabled(false);
 
         YAxis rightAxis = chart.getAxisRight();
-        rightAxis.setTextColor(ColorTemplate.getHoloBlue());
+        rightAxis.setTextColor(MaterialColors.getColor(root, R.attr.colorOnSurface));
         rightAxis.setDrawGridLines(true);
         rightAxis.setGranularityEnabled(true);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setTextColor(MaterialColors.getColor(root, R.attr.colorOnSurface));
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                ArrayList<ArrayList<String>> templist = new ArrayList<>(main.getRecordData());
+                return templist.get((int) value).get(0);
+            }
+        });
         return root;
     }
 }
