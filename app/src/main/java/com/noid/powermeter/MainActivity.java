@@ -49,9 +49,17 @@ public class MainActivity extends AppCompatActivity {
 
     public int adu;
     public boolean mBound = false;
-
+    public ActivityResultLauncher<Intent> bluetoothActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                    }
+                }
+            });
     BLEService mService;
-
     public ActivityResultLauncher<Intent> openActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -192,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         }
         assert bluetoothAdapter != null;
         if (!bluetoothAdapter.isEnabled()) {
-            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1);
+            bluetoothActivityResultLauncher.launch(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
         }
     }
 
