@@ -48,4 +48,5 @@
     <item name="button_jia" type="id" />
     <item name="button_export" type="id" />
     <item name="barrier4" type="id" />
+    <item name="button_import" type="id" />
 </resources>

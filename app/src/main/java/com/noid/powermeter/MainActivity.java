@@ -37,15 +37,21 @@ import com.noid.powermeter.Model.BLEService;
 
 import com.noid.powermeter.databinding.ActivityMainBinding;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -91,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     boolean mBound = false;
 
     private static final int WRITE_REQUEST_CODE = 43;
+    private static final int READ_REQUEST_CODE = 45;
 
     private int f0 = 0;
 
@@ -188,8 +195,45 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, WRITE_REQUEST_CODE);
     }
 
+    public void openFile(View view) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == READ_REQUEST_CODE) {
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    if (data != null && data.getData() != null) {
+                        ArrayList<ArrayList<String>> records = new ArrayList<>();
+                        try (InputStream inputStream =
+                                     getContentResolver().openInputStream(data.getData());
+                             BufferedReader reader = new BufferedReader(
+                                     new InputStreamReader(Objects.requireNonNull(inputStream)))) {
+
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                if (!line.equals("Time,Voltage,Current,Power")){
+                                    String[] values = line.split(",");
+                                    records.add(new ArrayList<>(Arrays.asList(values)));
+                                }
+                            }
+                            mService.importList(records);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                    break;
+                case Activity.RESULT_CANCELED:
+                    break;
+            }
+        }
         if (requestCode == WRITE_REQUEST_CODE) {
             switch (resultCode) {
                 case Activity.RESULT_OK:

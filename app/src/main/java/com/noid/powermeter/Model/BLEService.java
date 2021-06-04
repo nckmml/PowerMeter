@@ -398,6 +398,27 @@ public class BLEService extends Service {
         }
     }
 
+    public void importList(ArrayList<ArrayList<String>> records){
+        List<Float> templist0 = new ArrayList<>();
+        List<Float> templist1 = new ArrayList<>();
+        List<Float> templist2 = new ArrayList<>();
+        List<String> temptimeList = new ArrayList<>();
+        for (int i = 0; i<records.size(); i++){
+            templist0.add(Float.parseFloat(records.get(i).get(1)));
+            templist1.add(Float.parseFloat(records.get(i).get(2)));
+            templist2.add(Float.parseFloat(records.get(i).get(3)));
+            temptimeList.add(records.get(i).get(0));
+        }
+        templist0.addAll(list0);
+        templist1.addAll(list1);
+        templist2.addAll(list2);
+        temptimeList.addAll(timeList);
+        list0 = new ArrayList<>(templist0);
+        list1 = new ArrayList<>(templist1);
+        list2 = new ArrayList<>(templist2);
+        timeList = new ArrayList<>(temptimeList);
+    }
+
     public void onCreate() {
         super.onCreate();
         initBluetooth();

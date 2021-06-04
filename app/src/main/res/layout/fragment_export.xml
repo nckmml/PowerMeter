@@ -10,8 +10,23 @@
         android:id="@id/button_export"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:onClick="exportExcel"
-        android:text="@string/button_export" />
+        android:text="@string/button_export"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@id/button_import"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="openFile"
+        android:text="@string/button_import"
+        app:layout_constraintStart_toEndOf="@id/button_export"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/text_export"
