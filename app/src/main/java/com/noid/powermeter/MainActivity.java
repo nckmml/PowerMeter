@@ -64,34 +64,34 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ArrayList<String>> recordList;
     private ArrayList<ArrayList<Entry>> rawRecordList;
 
-    TextView textVoltage;
-    TextView textCurrent;
-    TextView textPower;
-    TextView textFactor;
-    TextView textCumulative;
-    TextView textAc;
-    TextView textDc;
-    TextView textUsb;
-    TextView textView2;
-    TextView textName;
-    TextView text5;
-    TextView text6;
-    TextView text7;
-    TextView text8;
-    TextView text9;
-    TextView text11;
-    TextView textAC;
-    TextView textBill;
-    TextView textcarbon;
-    TextView textInternal;
-    TextView textElectricity;
-    TextView textBLV;
+    public TextView textVoltage;
+    public TextView textCurrent;
+    public TextView textPower;
+    public TextView textFactor;
+    public TextView textCumulative;
+    public TextView textAc;
+    public TextView textDc;
+    public TextView textUsb;
+    public TextView textView2;
+    public TextView textName;
+    public TextView text5;
+    public TextView text6;
+    public TextView text7;
+    public TextView text8;
+    public TextView text9;
+    public TextView text11;
+    public TextView textAC;
+    public TextView textBill;
+    public TextView textcarbon;
+    public TextView textInternal;
+    public TextView textElectricity;
+    public TextView textBLV;
 
-    Button button;
-    Button button2;
-    Button button3;
+    public Button button;
+    public Button button2;
+    public Button button3;
 
-    ConstraintLayout layoutBL;
+    public ConstraintLayout layoutBL;
 
     BLEService mService;
     boolean mBound = false;
@@ -120,32 +120,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
         initBluetooth();
         initView();
-        textVoltage = (TextView)findViewById(R.id.textVoltage);
-        textCurrent = (TextView)findViewById(R.id.textCurrent);
-        textPower = (TextView)findViewById(R.id.textPower);
-        textFactor = (TextView)findViewById(R.id.textFactor);
-        textCumulative = (TextView)findViewById(R.id.textCumulative);
-        textAc = (TextView)findViewById(R.id.text_ac);
-        textDc = (TextView)findViewById(R.id.text_dc);
-        textUsb = (TextView)findViewById(R.id.text_usb);
-        textView2 = (TextView)findViewById(R.id.textView2);
-        textName = (TextView)findViewById(R.id.text_name);
-        text5 = (TextView)findViewById(R.id.text5);
-        text6 = (TextView)findViewById(R.id.text6);
-        text7 = (TextView)findViewById(R.id.text7);
-        text8 = (TextView)findViewById(R.id.text8);
-        text9 = (TextView)findViewById(R.id.text9);
-        text11 = (TextView)findViewById(R.id.text11);
-        textAC = (TextView)findViewById(R.id.textAC);
-        textBill = (TextView)findViewById(R.id.textBill);
-        textcarbon = (TextView)findViewById(R.id.textcarbon);
-        textInternal = (TextView)findViewById(R.id.textInternal);
-        textElectricity = (TextView)findViewById(R.id.textElectricity);
-        textBLV = (TextView)findViewById(R.id.textBLV);
-        button = (Button)findViewById(R.id.button);
-        button2 = (Button)findViewById(R.id.button2);
-        button3 = (Button)findViewById(R.id.button3);
-        layoutBL = (ConstraintLayout)findViewById(R.id.layoutBL);
     }
 
     private void initView() {
@@ -317,9 +291,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateText(HashMap<String, String> datamap){
+        Log.d("updateText()", "Received data to update");
         this.adu = Integer.parseInt(datamap.get("device"));
         switch (this.adu) {
             case 1:
+                Log.d("updateText()", "updating 1");
                 this.button.setVisibility(View.GONE);
                 this.button2.setVisibility(View.GONE);
                 this.layoutBL.setVisibility(View.VISIBLE);
@@ -344,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
                 this.textBLV.setText(datamap.get("backlight"));
                 break;
             case 2:
+                Log.d("updateText()", "updating 2");
                 this.button.setVisibility(View.VISIBLE);
                 this.button2.setVisibility(View.VISIBLE);
                 this.layoutBL.setVisibility(View.VISIBLE);
@@ -368,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
                 this.textBLV.setText(datamap.get("backlight"));
                 break;
             case 3:
+                Log.d("updateText()", "updating 3");
                 this.button.setVisibility(View.VISIBLE);
                 this.button2.setVisibility(View.VISIBLE);
                 this.layoutBL.setVisibility(View.GONE);
