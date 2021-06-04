@@ -127,6 +127,13 @@ public class GraphFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        binding = FragmentGraphBinding.inflate(getLayoutInflater(), (ViewGroup) getView().getParent(), false);
+        redrawChart();
+    }
+
     public void redrawChart() {
         LineDataSet set1, set2, set3;
         MainActivity main = (MainActivity) getActivity();

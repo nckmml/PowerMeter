@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
             BLEService.MyBinder binder = (BLEService.MyBinder) service;
             mService = binder.getService();
             mBound = true;
+            getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment().onResume();
         }
 
         @Override
