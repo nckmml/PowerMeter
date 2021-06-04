@@ -29,7 +29,6 @@ import android.widget.Toast;
 
 import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.R;
-import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -54,8 +53,6 @@ public class BLEService extends Service {
     private static BluetoothAdapter mAdapter;
     public static BluetoothGatt mBluetoothGatt;
     private MyBinder binder = new MyBinder();
-    private Context context;
-    private FragmentTextdisplayBinding binding;
     private byte[] mValue;
     private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     private List<Float> list0 = new ArrayList();

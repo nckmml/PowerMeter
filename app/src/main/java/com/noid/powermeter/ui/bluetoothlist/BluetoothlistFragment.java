@@ -15,16 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.noid.powermeter.Model.BLEService;
@@ -46,7 +43,6 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
     private ListView lv_device;
     private TextView deviceAddress;
     private TextView deviceName;
-    private Button back;
 
     private ServiceConnection conn = new ServiceConnection() {
         /* class com.tang.etest.e_test.Model.ScanActivity.AnonymousClass3 */

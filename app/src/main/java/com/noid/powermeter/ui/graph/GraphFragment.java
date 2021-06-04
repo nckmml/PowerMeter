@@ -24,7 +24,6 @@ import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.Model.BLEService;
 import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentGraphBinding;
-import com.noid.powermeter.ui.textdisplay.TextdisplayFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
