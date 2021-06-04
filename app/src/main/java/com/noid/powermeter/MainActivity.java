@@ -55,46 +55,13 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private byte[] mValue;
-
-    private int adu;
-
-    private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-
     private ArrayList<ArrayList<String>> recordList;
     private ArrayList<ArrayList<Entry>> rawRecordList;
 
-    public TextView textVoltage;
-    public TextView textCurrent;
-    public TextView textPower;
-    public TextView textFactor;
-    public TextView textCumulative;
-    public TextView textAc;
-    public TextView textDc;
-    public TextView textUsb;
-    public TextView textView2;
-    public TextView textName;
-    public TextView text5;
-    public TextView text6;
-    public TextView text7;
-    public TextView text8;
-    public TextView text9;
-    public TextView text11;
-    public TextView textAC;
-    public TextView textBill;
-    public TextView textcarbon;
-    public TextView textInternal;
-    public TextView textElectricity;
-    public TextView textBLV;
-
-    public Button button;
-    public Button button2;
-    public Button button3;
-
-    public ConstraintLayout layoutBL;
+    public int adu;
 
     BLEService mService;
-    boolean mBound = false;
+    public boolean mBound = false;
 
     private static final int WRITE_REQUEST_CODE = 43;
     private static final int READ_REQUEST_CODE = 45;
@@ -127,11 +94,6 @@ public class MainActivity extends AppCompatActivity {
         intent.setAction(BLEService.ACTION_START_NOTIFICATION_SERVICE);
         startForegroundService(intent);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        value receiver = new value();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BLEService.ALL_VALUE);
-        intentFilter.addAction(BLEService.CONTENT_DEVICE);
-        registerReceiver(receiver, intentFilter);
     }
 
         public void initBluetooth() {
@@ -292,87 +254,6 @@ public class MainActivity extends AppCompatActivity {
         return this.rawRecordList;
     }
 
-    private void updateText(HashMap<String, String> datamap){
-        Log.d("updateText()", "Received data to update");
-        this.adu = Integer.parseInt(datamap.get("device"));
-        switch (this.adu) {
-            case 1:
-                Log.d("updateText()", "updating 1");
-                this.button.setVisibility(View.GONE);
-                this.button2.setVisibility(View.GONE);
-                this.layoutBL.setVisibility(View.VISIBLE);
-                this.textAc.setBackgroundResource(0);
-                this.textDc.setBackgroundResource(R.drawable.text_bg);
-                this.textUsb.setBackgroundResource(R.drawable.text_bg);
-                this.text5.setText(getText(R.string.Power_Factor));
-                this.text7.setText(getText(R.string.carbon_dioxide));
-                this.text8.setText(getText(R.string.Cumulative_electricity_bill));
-                this.text9.setText(getText(R.string.AC_frequency));
-                this.text11.setText(getText(R.string.Electricity_price_setting));
-                this.textVoltage.setText(datamap.get("voltage"));
-                this.textCurrent.setText(datamap.get("current"));
-                this.textPower.setText(datamap.get("power"));
-                this.textFactor.setText(datamap.get("powerfactor"));
-                this.textCumulative.setText(datamap.get("electricity"));
-                this.textcarbon.setText(datamap.get("co2"));
-                this.textBill.setText(datamap.get("echarges"));
-                this.textAC.setText(datamap.get("acfreq"));
-                this.textInternal.setText(datamap.get("temperature"));
-                this.textElectricity.setText(datamap.get("eprice"));
-                this.textBLV.setText(datamap.get("backlight"));
-                break;
-            case 2:
-                Log.d("updateText()", "updating 2");
-                this.button.setVisibility(View.VISIBLE);
-                this.button2.setVisibility(View.VISIBLE);
-                this.layoutBL.setVisibility(View.VISIBLE);
-                this.textAc.setBackgroundResource(R.drawable.text_bg);
-                this.textDc.setBackgroundResource(0);
-                this.textUsb.setBackgroundResource(R.drawable.text_bg);
-                this.text5.setText(getText(R.string.Cumulative_capacity));
-                this.text7.setText(getText(R.string.carbon_dioxide));
-                this.text8.setText(getText(R.string.Cumulative_electricity_bill));
-                this.text9.setText(getText(R.string.time_record));
-                this.text11.setText(getText(R.string.Electricity_price_setting));
-                this.textVoltage.setText(datamap.get("voltage"));
-                this.textCurrent.setText(datamap.get("current"));
-                this.textPower.setText(datamap.get("power"));
-                this.textFactor.setText(datamap.get("capacity"));
-                this.textCumulative.setText(datamap.get("electricity"));
-                this.textcarbon.setText(datamap.get("co2"));
-                this.textBill.setText(datamap.get("echarges"));
-                this.textAC.setText(datamap.get("time"));
-                this.textInternal.setText(datamap.get("temperature"));
-                this.textElectricity.setText(datamap.get("eprice"));
-                this.textBLV.setText(datamap.get("backlight"));
-                break;
-            case 3:
-                Log.d("updateText()", "updating 3");
-                this.button.setVisibility(View.VISIBLE);
-                this.button2.setVisibility(View.VISIBLE);
-                this.layoutBL.setVisibility(View.GONE);
-                this.textAc.setBackgroundResource(R.drawable.text_bg);
-                this.textDc.setBackgroundResource(R.drawable.text_bg);
-                this.textUsb.setBackgroundResource(0);
-                this.text5.setText(getText(R.string.Cumulative_capacity));
-                this.text7.setText("USB_D + :");
-                this.text8.setText("USB_D - :");
-                this.text9.setText(getText(R.string.time_record));
-                this.text11.setText(getText(R.string.Backlight));
-                this.textVoltage.setText(datamap.get("voltage"));
-                this.textCurrent.setText(datamap.get("current"));
-                this.textPower.setText(datamap.get("power"));
-                this.textFactor.setText(datamap.get("capacity"));
-                this.textCumulative.setText(datamap.get("electricity"));
-                this.textcarbon.setText(datamap.get("dplus"));
-                this.textBill.setText(datamap.get("dminus"));
-                this.textAC.setText(datamap.get("time"));
-                this.textInternal.setText(datamap.get("temperature"));
-                this.textElectricity.setText(datamap.get("backlight"));
-                break;
-        }
-    }
-
     private void DialogClear(String str, final int i) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.Warning));
@@ -453,43 +334,6 @@ public class MainActivity extends AppCompatActivity {
         send(this.adu, 50, 0, 0, 0);
     }
 
-    public class value extends BroadcastReceiver {
-        public value() {
-        }
-
-        /* JADX WARNING: Removed duplicated region for block: B:12:0x002f  */
-        /* JADX WARNING: Removed duplicated region for block: B:16:0x009d  */
-        /* JADX WARNING: Removed duplicated region for block: B:41:? A[RETURN, SYNTHETIC] */
-        public void onReceive(Context context, Intent intent) {
-            char c = 65535;
-            String action = intent.getAction();
-            int hashCode = action.hashCode();
-            if (hashCode != -678816493) {
-                if (hashCode == 513534204 && action.equals(BLEService.CONTENT_DEVICE)) {
-                    c = 1;
-                }
-            } else if (action.equals(BLEService.ALL_VALUE)) {
-                c = 0;
-            }
-            switch (c) {
-                case 0:
-                    HashMap<String, String> datamap = (HashMap<String, String>)intent.getSerializableExtra(BLEService.ALL_VALUE);
-                    if (datamap.size() > 0)
-                        updateText(datamap);
-                    return;
-                case 1:
-                    if (intent.getExtras().getBoolean(BLEService.CONTENT_DEVICE)) {
-                        MainActivity.this.textName.setText(BLEService.mBluetoothGatt.getDevice().getName());
-                        return;
-                    }
-                    MainActivity.this.textName.setText("");
-                    return;
-                default:
-                    return;
-            }
-        }
-    }
-
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override
@@ -506,48 +350,4 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
-
-    private String ReservedInt(int i, String str) {
-        int intValue = Integer.valueOf(str).intValue();
-        String str2 = intValue + "";
-        switch (i) {
-            case 2:
-                if (intValue >= 10) {
-                    return str2;
-                }
-                return "0" + intValue;
-            case 3:
-                if (intValue < 10) {
-                    return "00" + intValue;
-                } else if (intValue >= 100) {
-                    return str2;
-                } else {
-                    return "0" + intValue;
-                }
-            case 4:
-                if (intValue < 10) {
-                    return "000" + intValue;
-                } else if (intValue < 100) {
-                    return "00" + intValue;
-                } else if (intValue >= 1000) {
-                    return str2;
-                } else {
-                    return "0" + intValue;
-                }
-            case 5:
-                if (intValue < 10) {
-                    return "0000" + intValue;
-                } else if (intValue < 100) {
-                    return "000" + intValue;
-                } else if (intValue < 1000) {
-                    return "00" + intValue;
-                } else if (intValue >= 10000) {
-                    return str2;
-                } else {
-                    return "0" + intValue;
-                }
-            default:
-                return str2;
-        }
-    }
 }
