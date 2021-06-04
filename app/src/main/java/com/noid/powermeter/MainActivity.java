@@ -218,7 +218,8 @@ public class MainActivity extends AppCompatActivity {
                             while ((line = reader.readLine()) != null) {
                                 if (!line.equals("Time,Voltage,Current,Power")){
                                     String[] values = line.split(",");
-                                    records.add(new ArrayList<>(Arrays.asList(values)));
+                                    if (values.length == 4)
+                                        records.add(new ArrayList<>(Arrays.asList(values)));
                                 }
                             }
                             mService.importList(records);
