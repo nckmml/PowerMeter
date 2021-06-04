@@ -259,7 +259,10 @@ public class MainActivity extends AppCompatActivity {
         this.fileName = getSDPath() + "/Etest/Etest.xls";
         ExcelUtils.writeObjListToExcel(getRecordData(), this.fileName, this);
          */
-        createFile("text/csv", "export.csv");
+        if (BLEService.mBluetoothGatt != null) {
+            createFile("text/csv", BLEService.mBluetoothGatt.getDevice().getName()+"_"+java.time.LocalDateTime.now()+".csv");
+        }else
+            createFile("text/csv", "PowerRecording_"+java.time.LocalDateTime.now()+".csv");
     }
 
     public ArrayList<ArrayList<String>> getRecordData() {
