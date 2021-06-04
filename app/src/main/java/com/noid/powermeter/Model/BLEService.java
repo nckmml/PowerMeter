@@ -149,7 +149,6 @@ public class BLEService extends Service {
             DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
             DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
             Float valueOf3 = Float.valueOf(0.0f);
-            Log.i("DEBUG", "bArr.length"+bArr.length);
             HashMap<String, String> datamap = new HashMap<String, String>();
             if (bArr.length >= 3){
                 if ((bArr[0] & 255) == 255 && bArr[2] == 1) {

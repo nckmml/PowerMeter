@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        Log.i("DEBUG", "startService(BLEService)");
         Intent intent = new Intent(this, BLEService.class);
         intent.setAction(BLEService.ACTION_START_NOTIFICATION_SERVICE);
         startForegroundService(intent);
@@ -420,15 +419,10 @@ public class MainActivity extends AppCompatActivity {
         bArr[1] = 85;
         bArr[2] = 17;
         bArr[3] = (byte) i;
-        Log.i("DEBUG","bArr[3] = "+bArr[3]);
         bArr[4] = (byte) i2;
-        Log.i("DEBUG","bArr[4] = "+bArr[4]);
         bArr[6] = (byte) i3;
-        Log.i("DEBUG","bArr[6] = "+bArr[6]);
         bArr[7] = (byte) i4;
-        Log.i("DEBUG","bArr[7] = "+bArr[7]);
         bArr[8] = (byte) i5;
-        Log.i("DEBUG","bArr[8] = "+bArr[8]);
         bArr[9] = (byte) ((((((((bArr[2] & 255) + (bArr[3] & 255)) + (bArr[4] & 255)) + (bArr[5] & 255)) + (bArr[6] & 255)) + (bArr[7] & 255)) + (bArr[8] & 255)) ^ 68);
         Log.i("校验码", ((bArr[2] & 255) + (bArr[3] & 255) + (bArr[4] & 255) + (bArr[5] & 255) + (bArr[6] & 255) + (bArr[7] & 255) + (bArr[8] & 255)) + "");
         BLEService.send(bArr);
@@ -478,12 +472,9 @@ public class MainActivity extends AppCompatActivity {
         /* JADX WARNING: Removed duplicated region for block: B:16:0x009d  */
         /* JADX WARNING: Removed duplicated region for block: B:41:? A[RETURN, SYNTHETIC] */
         public void onReceive(Context context, Intent intent) {
-            Log.i("DEBUG", "Received Data");
             char c = 65535;
             String action = intent.getAction();
             int hashCode = action.hashCode();
-            Log.i("DEBUG", "hashCode: "+hashCode);
-            Log.i("DEBUG","action: "+action);
             if (hashCode != -678816493) {
                 if (hashCode == 513534204 && action.equals(BLEService.CONTENT_DEVICE)) {
                     c = 1;
