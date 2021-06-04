@@ -111,8 +111,8 @@ public class GraphFragment extends Fragment {
             xAxis.setValueFormatter(new ValueFormatter() {
                 @Override
                 public String getFormattedValue(float value) {
-                    ArrayList<ArrayList<String>> templist = new ArrayList<>(main.getRecordData());
-                    return templist.get((int) value).get(0);
+                    ArrayList<String> templist = new ArrayList<>(main.getTimeRecordData());
+                    return templist.get((int) value);
                 }
             });
         }

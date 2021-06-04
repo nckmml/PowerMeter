@@ -86,16 +86,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
         initBluetooth();
-        initView();
     }
-
-    private void initView() {
-        Intent intent = new Intent(this, BLEService.class);
-        intent.setAction(BLEService.ACTION_START_NOTIFICATION_SERVICE);
-        startForegroundService(intent);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
-    }
-
         public void initBluetooth() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
