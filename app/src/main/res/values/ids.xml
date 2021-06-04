@@ -5,9 +5,9 @@
     <item name="device_name" type="id" />
     <item name="device_address" type="id" />
     <item name="textVoltage" type="id" />
-    <item name="textHeaderAc" type="id" />
-    <item name="textHeaderDc" type="id" />
-    <item name="textHeaderUSB" type="id" />
+    <item name="chipHeaderAc" type="id" />
+    <item name="chipHeaderDc" type="id" />
+    <item name="chipHeaderUSB" type="id" />
     <item name="textView2" type="id" />
     <item name="textHeaderName" type="id" />
     <item name="text3" type="id" />

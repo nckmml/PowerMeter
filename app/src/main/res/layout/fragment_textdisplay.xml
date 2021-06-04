@@ -15,47 +15,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@id/textHeaderAc"
-            android:layout_width="80.0dip"
-            android:layout_height="30.0dip"
+        <com.google.android.material.chip.Chip
+            android:id="@id/chipHeaderAc"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/AC"
+            android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@id/textHeaderDc"
-            android:layout_width="80.0dip"
-            android:layout_height="30.0dip"
-            android:background="@drawable/text_bg"
+        <com.google.android.material.chip.Chip
+            android:id="@id/chipHeaderDc"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/DC"
+            android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/textHeaderAc"
+            app:layout_constraintStart_toEndOf="@id/chipHeaderAc"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@id/textHeaderUSB"
-            android:layout_width="80.0dip"
-            android:layout_height="30.0dip"
-            android:background="@drawable/text_bg"
+        <com.google.android.material.chip.Chip
+            android:id="@id/chipHeaderUSB"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/USB"
+            android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/textHeaderDc"
+            app:layout_constraintStart_toEndOf="@id/chipHeaderDc"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@id/textView2"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
             android:layout_width="0.0dip"
             android:layout_height="0.0dip"
             android:layout_margin="0.0dip"
             android:background="#ff767676"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/textHeaderUSB"
+            app:layout_constraintStart_toEndOf="@id/chipHeaderUSB"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
