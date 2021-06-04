@@ -23,12 +23,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.noid.powermeter.Model.BLEService;
 import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentBluetoothlistBinding;
+import com.noid.powermeter.ui.textdisplay.TextdisplayFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +71,9 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
             if (bluetoothDevice != null) {
                 BluetoothlistFragment.this.mBleService.scan(false);
                 BluetoothlistFragment.this.mBleService.connect(bluetoothDevice.getAddress());
-                //BluetoothlistFragment.this.finish();
+                FragmentManager fragmentManager = getParentFragmentManager();
+                Fragment textFragment = new TextdisplayFragment();
+                fragmentManager.beginTransaction().replace(R.id.fragment_bluetoothlist, textFragment, textFragment.getTag()).commit();
             }
         }
     };

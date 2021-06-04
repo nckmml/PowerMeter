@@ -49,4 +49,6 @@
     <item name="button_export" type="id" />
     <item name="barrier4" type="id" />
     <item name="button_import" type="id" />
+    <item name="fragment_textdisplay" type="id" />
+    <item name="fragment_bluetoothlist" type="id" />
 </resources>
