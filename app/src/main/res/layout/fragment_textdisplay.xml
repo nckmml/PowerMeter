@@ -12,6 +12,7 @@
         android:id="@+id/constraint_header"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="@color/design_default_color_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -32,9 +33,10 @@
             style="@style/Widget.MaterialComponents.Chip.Filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:clickable="false"
             android:gravity="center"
             android:text="@string/DC"
-            android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/chipHeaderAc"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,20 +46,19 @@
             style="@style/Widget.MaterialComponents.Chip.Filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:clickable="false"
             android:gravity="center"
             android:text="@string/USB"
-            android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/chipHeaderDc"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@id/textView2"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
             android:layout_width="0.0dip"
             android:layout_height="0.0dip"
             android:layout_margin="0.0dip"
-            android:background="#ff767676"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/chipHeaderUSB"
