@@ -1,5 +1,7 @@
 package com.noid.powermeter;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -86,7 +88,16 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
         initBluetooth();
+        initView();
     }
+
+    private void initView() {
+        Intent intent = new Intent(this, BLEService.class);
+        intent.setAction(BLEService.ACTION_START_NOTIFICATION_SERVICE);
+        startForegroundService(intent);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
         public void initBluetooth() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -117,78 +128,78 @@ public class MainActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
-        startActivityForResult(intent, WRITE_REQUEST_CODE);
+        saveActivityResultLauncher.launch(intent);
     }
 
     public void openFile(View view) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        startActivityForResult(intent, READ_REQUEST_CODE);
+        openActivityResultLauncher.launch(intent);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == READ_REQUEST_CODE) {
-            switch (resultCode) {
-                case Activity.RESULT_OK:
-                    if (data != null && data.getData() != null) {
-                        ArrayList<ArrayList<String>> records = new ArrayList<>();
-                        try (InputStream inputStream =
-                                     getContentResolver().openInputStream(data.getData());
-                             BufferedReader reader = new BufferedReader(
-                                     new InputStreamReader(Objects.requireNonNull(inputStream)))) {
+    public ActivityResultLauncher<Intent> openActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null && data.getData() != null) {
+                            ArrayList<ArrayList<String>> records = new ArrayList<>();
+                            try (InputStream inputStream =
+                                         getContentResolver().openInputStream(data.getData());
+                                 BufferedReader reader = new BufferedReader(
+                                         new InputStreamReader(Objects.requireNonNull(inputStream)))) {
 
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                if (!line.equals("Time,Voltage,Current,Power")){
-                                    String[] values = line.split(",");
-                                    if (values.length == 4)
-                                        records.add(new ArrayList<>(Arrays.asList(values)));
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    if (!line.equals("Time,Voltage,Current,Power")){
+                                        String[] values = line.split(",");
+                                        if (values.length == 4)
+                                            records.add(new ArrayList<>(Arrays.asList(values)));
+                                    }
                                 }
+                                mService.importList(records);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            mService.importList(records);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
-
                     }
-                    break;
-                case Activity.RESULT_CANCELED:
-                    break;
-            }
-        }
-        if (requestCode == WRITE_REQUEST_CODE) {
-            switch (resultCode) {
-                case Activity.RESULT_OK:
-                    if (data != null
-                            && data.getData() != null) {
-                        OutputStream outputStream;
-                        try {
-                            outputStream = getContentResolver().openOutputStream(data.getData());
-                            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
-                            Log.i("File writer", "started writing to file");
-                            bw.write("Time,Voltage,Current,Power\n");
-                            ArrayList<ArrayList<String>> templist = new ArrayList<>(getRecordData());
-                            for (int i=0; i<templist.size(); i++){
-                                bw.write(templist.get(i).get(0).toString()+","+templist.get(i).get(1).toString()+","+templist.get(i).get(2).toString()+","+templist.get(i).get(3).toString()+"\n");
+                }
+            });
+
+    public ActivityResultLauncher<Intent> saveActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null
+                                && data.getData() != null) {
+                            OutputStream outputStream;
+                            try {
+                                outputStream = getContentResolver().openOutputStream(data.getData());
+                                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+                                Log.i("File writer", "started writing to file");
+                                bw.write("Time,Voltage,Current,Power\n");
+                                ArrayList<ArrayList<String>> templist = new ArrayList<>(getRecordData());
+                                for (int i=0; i<templist.size(); i++){
+                                    bw.write(templist.get(i).get(0).toString()+","+templist.get(i).get(1).toString()+","+templist.get(i).get(2).toString()+","+templist.get(i).get(3).toString()+"\n");
+                                }
+                                Log.i("File writer", "Finished writing to file");
+                                bw.flush();
+                                bw.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            Log.i("File writer", "Finished writing to file");
-                            bw.flush();
-                            bw.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
-
+                        }
                     }
-                    break;
-                case Activity.RESULT_CANCELED:
-                    break;
-            }
-        }
-    }
+                });
 
     private void writeInFile(@NonNull Uri uri, @NonNull String text) {
         OutputStream outputStream;
