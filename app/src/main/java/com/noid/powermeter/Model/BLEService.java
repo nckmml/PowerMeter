@@ -408,10 +408,12 @@ public class BLEService extends Service {
             templist2.add(Float.parseFloat(records.get(i).get(3)));
             temptimeList.add(records.get(i).get(0));
         }
-        templist0.addAll(list0);
-        templist1.addAll(list1);
-        templist2.addAll(list2);
-        temptimeList.addAll(timeList);
+        if (timeList.size() != 0) {
+            templist0.addAll(list0);
+            templist1.addAll(list1);
+            templist2.addAll(list2);
+            temptimeList.addAll(timeList);
+        }
         list0 = new ArrayList<>(templist0);
         list1 = new ArrayList<>(templist1);
         list2 = new ArrayList<>(templist2);
