@@ -64,6 +64,7 @@ public class BLEService extends Service {
     private List<Float> listData = new ArrayList();
     private List<String> timeList = new ArrayList();
     private int f0 = 0;
+    private SharedPreferences mSharedPreferences;
 
     public BLEService(){}
 
@@ -363,6 +364,7 @@ public class BLEService extends Service {
             }
         }
     };
+
     public BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass1 */
 
@@ -377,8 +379,6 @@ public class BLEService extends Service {
             }
         }
     };
-    private SharedPreferences mSharedPreferences;
-    String valueStr = "";
 
     public List returnList(int listi){
         switch (listi){
@@ -443,7 +443,8 @@ public class BLEService extends Service {
             }
         }
         Log.i("test", "ServiceStart");
-        scan(true);
+        if (mBluetoothGatt == null)
+            scan(true);
         Log.i("Kathy", "onStartCommand - startId = " + i2 + ", Thread ID = " + Thread.currentThread().getId());
         return super.onStartCommand(intent, i, i2);
     }
