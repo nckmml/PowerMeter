@@ -254,6 +254,10 @@ public class MainActivity extends AppCompatActivity {
         return this.rawRecordList;
     }
 
+    public ArrayList<String> getTimeRecordData() {
+        return new ArrayList<String>(mService.returnList(4));
+    }
+
     private void DialogClear(String str, final int i) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.Warning));
