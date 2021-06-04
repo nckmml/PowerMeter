@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class UUIDs {
-    public static int LOCALE = 0;
     public static final String UUID_NOTIFY = "0000ffe1-0000-1000-8000-00805f9b34fb";
     public static final String UUID_SERVICE = "0000ffe0-0000-1000-8000-00805f9b34fb";
+    public static int LOCALE = 0;
 
     public static String doubleToString(double d) {
         return new DecimalFormat("0.00").format(d);

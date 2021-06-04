@@ -32,7 +32,7 @@ import com.noid.powermeter.ui.textdisplay.TextdisplayFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BluetoothlistFragment extends Fragment implements View.OnClickListener{
+public class BluetoothlistFragment extends Fragment implements View.OnClickListener {
 
     private BluetoothlistViewModel bluetoothlistViewModel;
     private FragmentBluetoothlistBinding binding;

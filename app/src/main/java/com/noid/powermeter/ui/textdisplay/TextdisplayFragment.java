@@ -15,22 +15,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-
 import androidx.lifecycle.ViewModelProvider;
 
 import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.Model.BLEService;
-
 import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
 import java.util.HashMap;
 
 public class TextdisplayFragment extends Fragment {
-
-    private TextdisplayViewModel textdisplayViewModel;
-    private FragmentTextdisplayBinding binding;
-    private int adu;
 
     public TextView textVoltage;
     public TextView textCurrent;
@@ -54,14 +48,14 @@ public class TextdisplayFragment extends Fragment {
     public TextView textInternal;
     public TextView textElectricity;
     public TextView textBLV;
-
     public Button button;
     public Button button2;
     public Button button3;
-
     public ConstraintLayout layoutBL;
-
     value receiver = new value();
+    private TextdisplayViewModel textdisplayViewModel;
+    private FragmentTextdisplayBinding binding;
+    private int adu;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -113,7 +107,7 @@ public class TextdisplayFragment extends Fragment {
         binding = null;
     }
 
-    private void updateText(HashMap<String, String> datamap){
+    private void updateText(HashMap<String, String> datamap) {
         Log.d("updateText()", "Received data to update");
         this.adu = Integer.parseInt(datamap.get("device"));
         MainActivity main = (MainActivity) getActivity();
@@ -199,6 +193,7 @@ public class TextdisplayFragment extends Fragment {
     public class value extends BroadcastReceiver {
         public value() {
         }
+
         public void onReceive(Context context, Intent intent) {
             char c = 65535;
             String action = intent.getAction();
@@ -212,7 +207,7 @@ public class TextdisplayFragment extends Fragment {
             }
             switch (c) {
                 case 0:
-                    HashMap<String, String> datamap = (HashMap<String, String>)intent.getSerializableExtra(BLEService.ALL_VALUE);
+                    HashMap<String, String> datamap = (HashMap<String, String>) intent.getSerializableExtra(BLEService.ALL_VALUE);
                     if (datamap.size() > 0)
                         updateText(datamap);
                     return;

@@ -5,12 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -30,10 +29,9 @@ import java.util.HashMap;
 
 public class GraphFragment extends Fragment {
 
+    value receiver = new value();
     private LineChart chart;
     private FragmentGraphBinding binding;
-
-    value receiver = new value();
 
     public GraphFragment() {
     }
@@ -129,7 +127,7 @@ public class GraphFragment extends Fragment {
         return root;
     }
 
-    public void redrawChart(){
+    public void redrawChart() {
         LineDataSet set1, set2, set3;
         MainActivity main = (MainActivity) getActivity();
         View view = binding.getRoot();
@@ -188,14 +186,15 @@ public class GraphFragment extends Fragment {
     public class value extends BroadcastReceiver {
         public value() {
         }
+
         public void onReceive(Context context, Intent intent) {
             char c = 65535;
             String action = intent.getAction();
             int hashCode = action.hashCode();
             if (hashCode == -678816493 && action.equals(BLEService.ALL_VALUE)) {
-                    HashMap<String, String> datamap = (HashMap<String, String>)intent.getSerializableExtra(BLEService.ALL_VALUE);
-                    if (datamap.size() > 0)
-                        redrawChart();
+                HashMap<String, String> datamap = (HashMap<String, String>) intent.getSerializableExtra(BLEService.ALL_VALUE);
+                if (datamap.size() > 0)
+                    redrawChart();
             }
         }
     }
