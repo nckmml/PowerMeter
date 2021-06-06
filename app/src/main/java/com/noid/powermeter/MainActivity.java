@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
+                        initView();
                     }
                 }
             });
@@ -134,7 +135,10 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    triggerRebirth(getApplicationContext());
+                    if (BluetoothAdapter.getDefaultAdapter().isEnabled())
+                        initView();
+                    else
+                        initBluetooth();
                 } else {
                     System.exit(1);
                 }
@@ -156,15 +160,6 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
-
-    public static void triggerRebirth(Context context) {
-        PackageManager packageManager = context.getPackageManager();
-        Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
-        ComponentName componentName = intent.getComponent();
-        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-        context.startActivity(mainIntent);
-        Runtime.getRuntime().exit(0);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -188,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,8 +198,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-        initBluetooth();
-        initView();
+        initLocationPermission();
     }
 
     private void initView() {
@@ -216,20 +208,26 @@ public class MainActivity extends AppCompatActivity {
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
-    public void initBluetooth() {
+    public void initLocationPermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck == PackageManager.PERMISSION_DENIED) {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else if (permissionCheck == PackageManager.PERMISSION_GRANTED)
+            initBluetooth();
+    }
+
+    public void initBluetooth() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             // Device doesn't support Bluetooth
             System.exit(1);
         }
-        if (permissionCheck == PackageManager.PERMISSION_DENIED) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
         assert bluetoothAdapter != null;
         if (!bluetoothAdapter.isEnabled()) {
             bluetoothActivityResultLauncher.launch(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
-        }
+        } else
+            initView();
+
     }
 
     private void createFile(String mimeType, String fileName) {
