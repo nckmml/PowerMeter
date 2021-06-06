@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                     else
                         initBluetooth();
                 } else {
-                    System.exit(1);
+                    exit();
                 }
             });
 
@@ -153,13 +153,19 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         if (item.getItemId() == R.id.exit) {
-            Intent intent = new Intent(this, BLEService.class);
-            intent.setAction(BLEService.ACTION_STOP_NOTIFICATION_SERVICE);
-            startService(intent);
-            finish();
+            exit();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void exit() {
+        if(mBound == true) {
+            Intent intent = new Intent(this, BLEService.class);
+            intent.setAction(BLEService.ACTION_STOP_NOTIFICATION_SERVICE);
+            startService(intent);
+        }
+        finish();
     }
 
     @Override
@@ -186,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
     public void initLocationPermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck == PackageManager.PERMISSION_DENIED) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+            DialogLocation(getString(R.string.locationInfo));
         } else if (permissionCheck == PackageManager.PERMISSION_GRANTED)
             initBluetooth();
     }
@@ -202,7 +208,6 @@ public class MainActivity extends AppCompatActivity {
             bluetoothActivityResultLauncher.launch(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
         } else
             initView();
-
     }
 
     private void createFile(String mimeType, String fileName) {
@@ -282,6 +287,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }.init(i)).setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> {
         }).show();
+    }
+
+    private void DialogLocation(String str) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.Info));
+        builder.setMessage(str);
+        builder
+                .setPositiveButton(getString(R.string.confirm), (dialogInterface, i12) -> requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION))
+                .setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> exit()).show();
     }
 
     private void send(int i, int i2, int i3, int i4, int i5) {

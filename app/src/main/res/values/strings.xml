@@ -24,7 +24,7 @@
     <string name="second">s</string>
     <string name="BackLight">BL:</string>
     <string name="SteUp">SETUP</string>
-    <string name="confirm">Enter</string>
+    <string name="confirm">Okay</string>
     <string name="button_export">Export</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_textdisplay">Text</string>
@@ -56,4 +56,6 @@
     <string name="Off">OFF</string>
     <string name="minus">-</string>
     <string name="plus">+</string>
+    <string name="locationInfo">Since it is possible to calculate your location from known nearby Bluetooth devices, Android requires Location permissions to access Bluetooth devices directly. Since this app requires a Bluetooth connection, Location access is needed. Please click Okay to grant Location permission.</string>
+    <string name="Info">Info</string>
 </resources>
