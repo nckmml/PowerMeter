@@ -13,28 +13,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.noid.powermeter.Model.BLEService;
 import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentBluetoothlistBinding;
 import com.noid.powermeter.ui.textdisplay.TextdisplayFragment;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
-public class BluetoothlistFragment extends Fragment implements View.OnClickListener {
+public class BluetoothlistFragment extends Fragment {
 
     private final ArrayList<BluetoothDevice> devices = new ArrayList<>();
     private FragmentBluetoothlistBinding binding;
     private value receiver;
-    private BaseAdapter adapter;
+    private RecyclerViewAdapter adapter;
     private BLEService mBleService;
     private final ServiceConnection conn = new ServiceConnection() {
         /* class com.tang.etest.e_test.Model.ScanActivity.AnonymousClass3 */
@@ -49,27 +51,19 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
             Log.i("Kathy", "ActivityA - onServiceDisconnected");
         }
     };
-    private final AdapterView.OnItemClickListener onItemClickListener = (adapterView, view, i, j) -> {
-        BluetoothDevice bluetoothDevice = BluetoothlistFragment.this.devices.get(i);
-        if (bluetoothDevice != null) {
-            BluetoothlistFragment.this.mBleService.scan(false);
-            BluetoothlistFragment.this.mBleService.connect(bluetoothDevice.getAddress());
-            FragmentManager fragmentManager = getParentFragmentManager();
-            Fragment textFragment = new TextdisplayFragment();
-            fragmentManager.beginTransaction().replace(R.id.fragment_bluetoothlist, textFragment, textFragment.getTag()).commit();
-        }
-    };
-    private ListView lv_device;
-    private TextView deviceAddress;
-    private TextView deviceName;
+    private RecyclerView lv_device;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBluetoothlistBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         this.lv_device = binding.ListDevice;
+        this.lv_device.setAdapter(new RecyclerViewAdapter(devices));
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        this.lv_device.setLayoutManager(mLayoutManager);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(this.lv_device.getContext(), mLayoutManager.getOrientation());
+        this.lv_device.addItemDecoration(mDividerItemDecoration);
         scanDevice();
-        this.lv_device.setOnItemClickListener(this.onItemClickListener);
         this.receiver = new value();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BLEService.BLUETOOTH_DEVICE);
@@ -80,33 +74,44 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
 
     private void scanDevice() {
         Log.i("DEBUG", "Scan eingeleitet");
-        this.adapter = new BaseAdapter() {
-            /* class com.tang.etest.e_test.Model.ScanActivity.AnonymousClass2 */
+        this.adapter = new RecyclerViewAdapter(devices) {
+            private final RecyclerView.OnClickListener mOnClickListener = new RecyclerView.OnClickListener() {
 
-            public Object getItem(int i) {
-                return null;
+                @Override
+                public void onClick(View view) {
+                    int i = lv_device.getChildLayoutPosition(view);
+                    BluetoothDevice bluetoothDevice = BluetoothlistFragment.this.devices.get(i);
+                    if (bluetoothDevice != null) {
+                        BluetoothlistFragment.this.mBleService.scan(false);
+                        BluetoothlistFragment.this.mBleService.connect(bluetoothDevice.getAddress());
+                        devices.clear();
+                        FragmentManager fragmentManager = getParentFragmentManager();
+                        Fragment textFragment = new TextdisplayFragment();
+                        fragmentManager.beginTransaction().replace(R.id.fragment_bluetoothlist, textFragment, textFragment.getTag()).commit();
+                    }
+                }
+            };
+
+            @Override
+            public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
+                holder.deviceName.setText(BluetoothlistFragment.this.devices.get(position).getName());
+                holder.deviceAddress.setText(BluetoothlistFragment.this.devices.get(position).getAddress());
+            }
+
+            @NotNull
+            @Override
+            public ViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(requireContext()).inflate(R.layout.listitem_device, parent, false);
+                view.setOnClickListener(mOnClickListener);
+                return new ViewHolder(view);
             }
 
             public long getItemId(int i) {
                 return 0;
             }
 
-            public int getCount() {
+            public int getItemCount() {
                 return BluetoothlistFragment.this.devices.size();
-            }
-
-            public View getView(int i, View view, ViewGroup viewGroup) {
-                LayoutInflater layoutInflater = BluetoothlistFragment.this.getLayoutInflater();
-                if (view == null) {
-                    view = layoutInflater.inflate(R.layout.listitem_device, null);
-                } else {
-                    Log.i("info", "Regenerating Cache" + i);
-                }
-                BluetoothlistFragment.this.deviceName = view.findViewById(R.id.device_name);
-                BluetoothlistFragment.this.deviceName.setText(BluetoothlistFragment.this.devices.get(i).getName());
-                BluetoothlistFragment.this.deviceAddress = view.findViewById(R.id.device_address);
-                BluetoothlistFragment.this.deviceAddress.setText(BluetoothlistFragment.this.devices.get(i).getAddress());
-                return view;
             }
         };
         this.lv_device.setAdapter(this.adapter);
@@ -119,11 +124,6 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
         this.mBleService.scan(false);
         super.onDestroyView();
         binding = null;
-    }
-
-    @Override
-    public void onClick(View view) {
-
     }
 
     public class value extends BroadcastReceiver {
@@ -139,6 +139,43 @@ public class BluetoothlistFragment extends Fragment implements View.OnClickListe
                     BluetoothlistFragment.this.devices.add(bluetoothDevice);
                     BluetoothlistFragment.this.adapter.notifyDataSetChanged();
                 }
+            }
+        }
+    }
+
+    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+        ArrayList<BluetoothDevice> devices;
+
+        public RecyclerViewAdapter(ArrayList<BluetoothDevice> devices) {
+            this.devices = devices;
+        }
+
+        @NotNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
+            return new ViewHolder(
+                    LayoutInflater
+                            .from(requireContext())
+                            .inflate(R.layout.listitem_device, parent, false)
+            );
+        }
+
+        public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            TextView deviceName;
+            TextView deviceAddress;
+
+            public ViewHolder(@NonNull View view) {
+                super(view);
+                deviceName = view.findViewById(R.id.device_name);
+                deviceAddress = view.findViewById(R.id.device_address);
             }
         }
     }
