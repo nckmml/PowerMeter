@@ -15,9 +15,12 @@ public class UUIDs {
     }
 
     public static <T> byte[] concat(byte[] bArr, byte[] bArr2) {
-        byte[] copyOf = Arrays.copyOf(bArr, bArr.length + bArr2.length);
-        System.arraycopy(bArr2, 0, copyOf, bArr.length, bArr2.length);
-        return copyOf;
+        if (bArr != null && bArr2 != null) {
+            byte[] copyOf = Arrays.copyOf(bArr, bArr.length + bArr2.length);
+            System.arraycopy(bArr2, 0, copyOf, bArr.length, bArr2.length);
+            return copyOf;
+        }
+        return null;
     }
 
     public static String bytesToHexString(byte[] bArr) {

@@ -444,16 +444,18 @@ public class BLEService extends Service {
                 case ACTION_START_NOTIFICATION_SERVICE:
                     startForegroundService();
                     Toast.makeText(getApplicationContext(), "Foreground service is started.", Toast.LENGTH_LONG).show();
+                    if (mBluetoothGatt == null)
+                        scan(true);
                     break;
                 case ACTION_STOP_NOTIFICATION_SERVICE:
-                    stopForegroundService();
                     Toast.makeText(getApplicationContext(), "Foreground service is stopped.", Toast.LENGTH_LONG).show();
+                    mBluetoothGatt.disconnect();
+                    mBluetoothGatt.close();
+                    BLEService.this.scan(false);
+                    stopForegroundService();
                     break;
             }
         }
-        Log.i("test", "ServiceStart");
-        if (mBluetoothGatt == null)
-            scan(true);
         Log.i("Kathy", "onStartCommand - startId = " + i2 + ", Thread ID = " + Thread.currentThread().getId());
         return super.onStartCommand(intent, i, i2);
     }
