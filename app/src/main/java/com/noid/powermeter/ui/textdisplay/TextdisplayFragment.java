@@ -15,7 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
 import com.noid.powermeter.MainActivity;
@@ -24,6 +23,7 @@ import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class TextdisplayFragment extends Fragment {
 
@@ -54,22 +54,16 @@ public class TextdisplayFragment extends Fragment {
     public Button button3;
     public ConstraintLayout layoutBL;
     value receiver = new value();
-    private TextdisplayViewModel textdisplayViewModel;
     private FragmentTextdisplayBinding binding;
-    private int adu;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        textdisplayViewModel =
-                new ViewModelProvider(this).get(TextdisplayViewModel.class);
-
         binding = FragmentTextdisplayBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BLEService.ALL_VALUE);
         intentFilter.addAction(BLEService.CONTENT_DEVICE);
-        getActivity().registerReceiver(receiver, intentFilter);
-        MainActivity main = (MainActivity) getActivity();
+        requireActivity().registerReceiver(receiver, intentFilter);
         textVoltage = binding.textVoltage;
         textCurrent = binding.textCurrent;
         textPower = binding.textPower;
@@ -104,16 +98,17 @@ public class TextdisplayFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unregisterReceiver(receiver);
+        requireActivity().unregisterReceiver(receiver);
         binding = null;
     }
 
     private void updateText(HashMap<String, String> datamap) {
         Log.d("updateText()", "Received data to update");
-        this.adu = Integer.parseInt(datamap.get("device"));
+        int adu = Integer.parseInt(Objects.requireNonNull(datamap.get("device")));
         MainActivity main = (MainActivity) getActivity();
-        main.adu = this.adu;
-        switch (this.adu) {
+        assert main != null;
+        main.adu = adu;
+        switch (adu) {
             case 1:
                 Log.d("updateText()", "updating 1");
                 this.button.setVisibility(View.GONE);
@@ -173,8 +168,8 @@ public class TextdisplayFragment extends Fragment {
                 this.chipDc.setChecked(false);
                 this.chipUsb.setChecked(true);
                 this.text5.setText(getText(R.string.Cumulative_capacity));
-                this.text7.setText("USB_D + :");
-                this.text8.setText("USB_D - :");
+                this.text7.setText(R.string.DataPlus);
+                this.text8.setText(R.string.DataMinus);
                 this.text9.setText(getText(R.string.time_record));
                 this.text11.setText(getText(R.string.Backlight));
                 this.textVoltage.setText(datamap.get("voltage"));
@@ -220,7 +215,6 @@ public class TextdisplayFragment extends Fragment {
                     textName.setText("");
                     return;
                 default:
-                    return;
             }
         }
     }

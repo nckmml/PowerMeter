@@ -3,7 +3,6 @@ package com.noid.powermeter.Model;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -30,14 +29,15 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
-import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.R;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -55,28 +55,25 @@ public class BLEService extends Service {
     public static String bluetooth_device_address = "";
     public static BluetoothGatt mBluetoothGatt;
     private static BluetoothAdapter mAdapter;
-    private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+    private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final MyBinder binder = new MyBinder();
     public ScanCallback mLeScanCallback = new ScanCallback() {
 
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             Log.i("Scanning ", result.getDevice().toString() + " rssi " + result.getRssi());
-            if (result.getDevice().toString() != null) {
-                if (result.getDevice().getAddress().equals(BLEService.bluetooth_device_address)) {
-                    BLEService.this.scan(false);
-                    BLEService.this.connect(BLEService.bluetooth_device_address);
-                }
-                BLEService.this.broadcastUpdate(BLEService.BLUETOOTH_DEVICE, result.getDevice());
+            if (result.getDevice().getAddress().equals(BLEService.bluetooth_device_address)) {
+                BLEService.this.scan(false);
+                BLEService.this.connect(BLEService.bluetooth_device_address);
             }
+            BLEService.this.broadcastUpdate(BLEService.BLUETOOTH_DEVICE, result.getDevice());
         }
     };
-    private MyBinder binder = new MyBinder();
     private byte[] mValue;
-    private List<Float> list0 = new ArrayList();
-    private List<Float> list1 = new ArrayList();
-    private List<Float> list2 = new ArrayList();
-    private List<Float> listData = new ArrayList();
-    private List<String> timeList = new ArrayList();
+    private List<Float> list0 = new ArrayList<>();
+    private List<Float> list1 = new ArrayList<>();
+    private List<Float> list2 = new ArrayList<>();
+    private List<String> timeList = new ArrayList<>();
     private int f0 = 0;
     private SharedPreferences mSharedPreferences;
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -95,7 +92,7 @@ public class BLEService extends Service {
                 SharedPreferences.Editor edit = BLEService.this.mSharedPreferences.edit();
                 BLEService.bluetooth_device_address = bluetoothGatt.getDevice().getAddress();
                 edit.putString("DEVICE_ADDRESS", BLEService.bluetooth_device_address);
-                edit.commit();
+                edit.apply();
             }
         }
 
@@ -104,33 +101,21 @@ public class BLEService extends Service {
             for (BluetoothGattService bluetoothGattService : bluetoothGatt.getServices()) {
                 for (final BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattService.getCharacteristics()) {
                     if (bluetoothGattCharacteristic.getUuid().equals(UUID.fromString(UUIDs.UUID_NOTIFY))) {
-                        new Thread(new Runnable() {
-                            /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass2.AnonymousClass1 */
+                        new Thread(() -> new Timer().schedule(new TimerTask() {
+                            /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass2.AnonymousClass1.AnonymousClass1 */
 
                             public void run() {
-                                new Timer().schedule(new TimerTask() {
-                                    /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass2.AnonymousClass1.AnonymousClass1 */
-
-                                    public void run() {
-                                        BLEService.this.setCharacteristicNotification(bluetoothGattCharacteristic, true);
-                                    }
-                                }, 1000);
+                                BLEService.this.setCharacteristicNotification(bluetoothGattCharacteristic, true);
                             }
-                        }).start();
+                        }, 1000)).start();
                     }
                 }
             }
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass2.AnonymousClass2 */
-
-                public void run() {
-                    Toast.makeText(BLEService.this.getApplicationContext(), "Connected!", Toast.LENGTH_SHORT).show();
-                }
-            });
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(BLEService.this.getApplicationContext(), "Connected!", Toast.LENGTH_SHORT).show());
         }
 
         public void onCharacteristicRead(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic, int i) {
-            Log.i("onCharacteristicRead", "Read " + bluetoothGattCharacteristic.getValue());
+            Log.i("onCharacteristicRead", "Read " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
         }
 
         public void onCharacteristicWrite(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic, int i) {
@@ -139,10 +124,10 @@ public class BLEService extends Service {
 
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             byte[] bArr = bluetoothGattCharacteristic.getValue();
-            Float f;
-            Float f2;
-            Float valueOf = Float.valueOf(0.0f);
-            Float valueOf2 = Float.valueOf(0.0f);
+            float f;
+            float f2;
+            float valueOf = 0.0f;
+            float valueOf2 = 0.0f;
             String str;
             String str2;
             String str3;
@@ -160,13 +145,13 @@ public class BLEService extends Service {
             DecimalFormat decimalFormat9 = new DecimalFormat("0000.0");
             DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
             DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
-            Float valueOf3 = Float.valueOf(0.0f);
-            HashMap<String, String> datamap = new HashMap<String, String>();
+            float valueOf3 = 0.0f;
+            HashMap<String, String> datamap = new HashMap<>();
             if (bArr.length >= 3) {
                 if ((bArr[0] & 255) == 255 && bArr[2] == 1) {
                     mValue = bArr;
                 }
-                if ((bArr[0] & 255) != 255 && bArr.length >= 3) {
+                if ((bArr[0] & 255) != 255) {
                     mValue = UUIDs.concat(mValue, bArr);
                     if (mValue != null) {
                         if (mValue.length == 36) {
@@ -175,9 +160,9 @@ public class BLEService extends Service {
                             switch (bArr[3]) {
                                 case 1:
                                     datamap.put("device", "1");
-                                    f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d));
+                                    f = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
                                     datamap.put("voltage", (decimalFormat6.format(f) + "V"));
-                                    f2 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d));
+                                    f2 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
                                     datamap.put("current", (decimalFormat3.format(f2) + "A"));
                                     String format = decimalFormat8.format((((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) * 0.997d);
                                     String substring = format.substring(0, format.length() + -4);
@@ -185,16 +170,14 @@ public class BLEService extends Service {
                                     String format2 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
                                     String substring2 = format2.substring(0, format2.length() + -4);
                                     datamap.put("echarges", substring2);
-                                    valueOf3 = Float.valueOf((float) (((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 10.0d));
+                                    valueOf3 = (float) (((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 10.0d);
                                     datamap.put("power", (decimalFormat9.format(valueOf3) + "W"));
                                     datamap.put("powerfactor", (decimalFormat2.format(((double) (((bArr[22] & 255) * 256) + (bArr[23] & 255))) / 1000.0d) + "PF"));
                                     datamap.put("electricity", (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh"));
                                     datamap.put("acfreq", ((((double) (((bArr[20] & 255) * 256) + (bArr[21] & 255))) / 10.0d) + "Hz"));
                                     int i = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
                                     datamap.put("temperature", (i + "℃/" + decimalFormat.format((((double) i) * 1.8d) + 32.0d) + "℉"));
-                                    StringBuilder sb = new StringBuilder();
-                                    sb.append(decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
-                                    datamap.put("eprice", (sb.toString()));
+                                    datamap.put("eprice", (decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d)));
                                     if (bArr[30] == 0) {
                                         datamap.put("backlight", (getString(R.string.Long_black)));
                                     } else if (bArr[30] == 60) {
@@ -203,32 +186,32 @@ public class BLEService extends Service {
                                         datamap.put("backlight", (((int) bArr[30]) + getString(R.string.second)));
                                     }
                                     dataBuilder.append("Voltage: ");
-                                    dataBuilder.append(datamap.get("voltage") + "\n");
+                                    dataBuilder.append(datamap.get("voltage")).append("\n");
                                     dataBuilder.append("Current: ");
-                                    dataBuilder.append(datamap.get("current") + "\n");
+                                    dataBuilder.append(datamap.get("current")).append("\n");
                                     dataBuilder.append("Power: ");
-                                    dataBuilder.append(datamap.get("power") + "\n");
+                                    dataBuilder.append(datamap.get("power")).append("\n");
                                     dataBuilder.append("Power Factor: ");
-                                    dataBuilder.append(datamap.get("powerfactor") + "\n");
+                                    dataBuilder.append(datamap.get("powerfactor")).append("\n");
                                     dataBuilder.append("Electricity: ");
-                                    dataBuilder.append(datamap.get("electricity") + "\n");
+                                    dataBuilder.append(datamap.get("electricity")).append("\n");
                                     dataBuilder.append("CO2: ");
-                                    dataBuilder.append(datamap.get("co2") + "\n");
+                                    dataBuilder.append(datamap.get("co2")).append("\n");
                                     dataBuilder.append("Electricity charges: ");
-                                    dataBuilder.append(datamap.get("echarges") + "\n");
+                                    dataBuilder.append(datamap.get("echarges")).append("\n");
                                     dataBuilder.append("AC freq: ");
-                                    dataBuilder.append(datamap.get("acfreq") + "\n");
+                                    dataBuilder.append(datamap.get("acfreq")).append("\n");
                                     dataBuilder.append("Internal Temperature: ");
-                                    dataBuilder.append(datamap.get("temperature") + "\n");
+                                    dataBuilder.append(datamap.get("temperature")).append("\n");
                                     dataBuilder.append("Elec. price setting: ");
                                     dataBuilder.append(datamap.get("eprice"));
                                     break;
                                 case 2:
                                     datamap.put("device", "2");
                                     f0++;
-                                    f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d));
+                                    f = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
                                     datamap.put("voltage", (decimalFormat6.format(f) + "V"));
-                                    f2 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d));
+                                    f2 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
                                     datamap.put("current", (decimalFormat3.format(f2) + "A"));
                                     if (f0 / 3600 < 10) {
                                         str = "00" + (f0 / 3600);
@@ -248,7 +231,7 @@ public class BLEService extends Service {
                                         str3 = "" + (f0 % 60);
                                     }
                                     datamap.put("time", (str + ":" + str2 + ":" + str3));
-                                    valueOf3 = Float.valueOf(f.floatValue() * f2.floatValue());
+                                    valueOf3 = f * f2;
                                     String format3 = decimalFormat11.format(valueOf3);
                                     String substring3 = format3.substring(0, format3.length() + -5);
                                     datamap.put("power", (substring3 + "W"));
@@ -260,9 +243,7 @@ public class BLEService extends Service {
                                     datamap.put("echarges", substring5);
                                     datamap.put("capacity", (decimalFormat7.format(((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 100.0d) + "Ah"));
                                     datamap.put("electricity", (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh"));
-                                    StringBuilder sb2 = new StringBuilder();
-                                    sb2.append(decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
-                                    datamap.put("eprice", sb2.toString());
+                                    datamap.put("eprice", decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
                                     if (bArr[30] == 0) {
                                         datamap.put("backlight", (getString(R.string.Long_black)));
                                     } else if (bArr[30] == 60) {
@@ -271,38 +252,37 @@ public class BLEService extends Service {
                                         datamap.put("backlight", (((int) bArr[30]) + getString(R.string.second)));
                                     }
                                     dataBuilder.append("Voltage: ");
-                                    dataBuilder.append(datamap.get("Voltage") + "\n");
+                                    dataBuilder.append(datamap.get("Voltage")).append("\n");
                                     dataBuilder.append("Current: ");
-                                    dataBuilder.append(datamap.get("current") + "\n");
+                                    dataBuilder.append(datamap.get("current")).append("\n");
                                     dataBuilder.append("Power: ");
-                                    dataBuilder.append(datamap.get("power") + "\n");
+                                    dataBuilder.append(datamap.get("power")).append("\n");
                                     dataBuilder.append("Capacity: ");
-                                    dataBuilder.append(datamap.get("capacity") + "\n");
+                                    dataBuilder.append(datamap.get("capacity")).append("\n");
                                     dataBuilder.append("Electricity: ");
-                                    dataBuilder.append(datamap.get("electricity") + "\n");
+                                    dataBuilder.append(datamap.get("electricity")).append("\n");
                                     dataBuilder.append("CO2: ");
-                                    dataBuilder.append(datamap.get("co2") + "\n");
+                                    dataBuilder.append(datamap.get("co2")).append("\n");
                                     dataBuilder.append("Electricity charges: ");
-                                    dataBuilder.append(datamap.get("echarges") + "\n");
+                                    dataBuilder.append(datamap.get("echarges")).append("\n");
                                     dataBuilder.append("Time record: ");
-                                    dataBuilder.append(datamap.get("time") + "\n");
+                                    dataBuilder.append(datamap.get("time")).append("\n");
                                     dataBuilder.append("Elec. price setting: ");
                                     dataBuilder.append(datamap.get("eprice"));
                                     break;
                                 case 3:
                                     datamap.put("device", "3");
-                                    f = Float.valueOf((float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d));
+                                    f = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d);
                                     datamap.put("voltage", (decimalFormat5.format(f) + "V"));
-                                    Float valueOf4 = Float.valueOf((float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 100.0d));
+                                    float valueOf4 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 100.0d);
                                     datamap.put("current", (decimalFormat5.format(valueOf4) + "A"));
-                                    valueOf3 = Float.valueOf(f.floatValue() * valueOf4.floatValue());
+                                    valueOf3 = f * valueOf4;
                                     String format6 = decimalFormat11.format(valueOf3);
                                     String substring6 = format6.substring(0, format6.length() + -4);
                                     datamap.put("power", (substring6 + "W"));
-                                    StringBuilder sb3 = new StringBuilder();
-                                    sb3.append(ReservedInt(5, (((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256) + (bArr[12] & 255)) + ""));
-                                    sb3.append("mAh");
-                                    datamap.put("capacity", (sb3.toString()));
+                                    String sb3 = ReservedInt((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256) + (bArr[12] & 255)) + "") +
+                                            "mAh";
+                                    datamap.put("capacity", (sb3));
                                     datamap.put("electricity", (decimalFormat10.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "Wh"));
                                     datamap.put("dplus", (decimalFormat2.format(((double) (((bArr[19] & 255) * 256) + (bArr[20] & 255))) / 100.0d) + "V"));
                                     datamap.put("dminus", (decimalFormat2.format(((double) (((bArr[17] & 255) * 256) + (bArr[18] & 255))) / 100.0d) + "V"));
@@ -335,21 +315,21 @@ public class BLEService extends Service {
                                         datamap.put("backlight", (((int) bArr[27]) + getString(R.string.second)));
                                     }
                                     dataBuilder.append("Voltage: ");
-                                    dataBuilder.append(datamap.get("voltage") + "\n");
+                                    dataBuilder.append(datamap.get("voltage")).append("\n");
                                     dataBuilder.append("Current: ");
-                                    dataBuilder.append(datamap.get("current") + "\n");
+                                    dataBuilder.append(datamap.get("current")).append("\n");
                                     dataBuilder.append("Power: ");
-                                    dataBuilder.append(datamap.get("power") + "\n");
+                                    dataBuilder.append(datamap.get("power")).append("\n");
                                     dataBuilder.append("Capacity: ");
-                                    dataBuilder.append(datamap.get("capacity") + "\n");
+                                    dataBuilder.append(datamap.get("capacity")).append("\n");
                                     dataBuilder.append("Electricity: ");
-                                    dataBuilder.append(datamap.get("electricity") + "\n");
+                                    dataBuilder.append(datamap.get("electricity")).append("\n");
                                     dataBuilder.append("USB D+: ");
-                                    dataBuilder.append(datamap.get("dplus") + "\n");
+                                    dataBuilder.append(datamap.get("dplus")).append("\n");
                                     dataBuilder.append("USB D-: ");
-                                    dataBuilder.append(datamap.get("dminus") + "\n");
+                                    dataBuilder.append(datamap.get("dminus")).append("\n");
                                     dataBuilder.append("Time record: ");
-                                    dataBuilder.append(datamap.get("time") + "\n");
+                                    dataBuilder.append(datamap.get("time")).append("\n");
                                     dataBuilder.append("Internal Temperature: ");
                                     dataBuilder.append(datamap.get("temperature"));
                                     break;
@@ -362,27 +342,16 @@ public class BLEService extends Service {
                             list0.add(f);
                             list1.add(f2);
                             list2.add(valueOf3);
-                            listData.add(f);
-                            listData.add(Float.valueOf(f2.floatValue() * 5.0f));
-                            listData.add(Float.valueOf(valueOf3.floatValue() / 6.0f));
-                            timeList.add(df.format(Long.valueOf(System.currentTimeMillis())));
-                            listData.clear();
+                            timeList.add(df.format(System.currentTimeMillis()));
                         }
                     }
                 }
             }
-            if (bluetoothGattCharacteristic != null) {
-                bluetoothGattCharacteristic.getUuid().toString();
-                BLEService.this.broadcastMap(BLEService.ALL_VALUE, datamap);
-            }
+            BLEService.this.broadcastMap(BLEService.ALL_VALUE, datamap);
         }
     };
 
     public BLEService() {
-    }
-
-    public static BluetoothAdapter getmAdapter() {
-        return mAdapter;
     }
 
     public static void send(byte[] bArr) {
@@ -402,12 +371,10 @@ public class BLEService extends Service {
                 return list1;
             case 2:
                 return list2;
-            case 3:
-                return listData;
             case 4:
                 return timeList;
             default:
-                return new ArrayList();
+                return new ArrayList<>();
         }
     }
 
@@ -478,16 +445,6 @@ public class BLEService extends Service {
     }
 
     private Notification getNotification(String text) {
-
-        // The PendingIntent to launch our activity if the user selects
-        // this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, new Intent(this, MainActivity.class), 0);
-
-        // Create notification default intent.
-        Intent intent = new Intent();
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(BLEService.this,
                 default_notification_channel_id)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -532,10 +489,6 @@ public class BLEService extends Service {
 
     public void initBluetooth() {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-    }
-
-    public BluetoothGatt getmBluetoothGatt() {
-        return mBluetoothGatt;
     }
 
     public void scan(boolean z) {
@@ -585,19 +538,7 @@ public class BLEService extends Service {
         sendBroadcast(intent);
     }
 
-    public void broadcastValueUpdate(String str, String str2) {
-        Intent intent = new Intent(str);
-        intent.putExtra(str, str2);
-        sendBroadcast(intent);
-    }
-
-    public void broadcastByte(String str, byte[] bArr) {
-        Intent intent = new Intent(str);
-        intent.putExtra(str, bArr);
-        sendBroadcast(intent);
-    }
-
-    public void broadcastMap(String str, HashMap map) {
+    public void broadcastMap(String str, HashMap<String, String> map) {
         Intent intent = new Intent(str);
         intent.putExtra(str, map);
         sendBroadcast(intent);
@@ -609,47 +550,19 @@ public class BLEService extends Service {
         sendBroadcast(intent);
     }
 
-    private String ReservedInt(int i, String str) {
-        int intValue = Integer.valueOf(str).intValue();
+    private String ReservedInt(String str) {
+        int intValue = Integer.parseInt(str);
         String str2 = intValue + "";
-        switch (i) {
-            case 2:
-                if (intValue >= 10) {
-                    return str2;
-                }
-                return "0" + intValue;
-            case 3:
-                if (intValue < 10) {
-                    return "00" + intValue;
-                } else if (intValue >= 100) {
-                    return str2;
-                } else {
-                    return "0" + intValue;
-                }
-            case 4:
-                if (intValue < 10) {
-                    return "000" + intValue;
-                } else if (intValue < 100) {
-                    return "00" + intValue;
-                } else if (intValue >= 1000) {
-                    return str2;
-                } else {
-                    return "0" + intValue;
-                }
-            case 5:
-                if (intValue < 10) {
-                    return "0000" + intValue;
-                } else if (intValue < 100) {
-                    return "000" + intValue;
-                } else if (intValue < 1000) {
-                    return "00" + intValue;
-                } else if (intValue >= 10000) {
-                    return str2;
-                } else {
-                    return "0" + intValue;
-                }
-            default:
-                return str2;
+        if (intValue < 10) {
+            return "0000" + intValue;
+        } else if (intValue < 100) {
+            return "000" + intValue;
+        } else if (intValue < 1000) {
+            return "00" + intValue;
+        } else if (intValue >= 10000) {
+            return str2;
+        } else {
+            return "0" + intValue;
         }
     }
 

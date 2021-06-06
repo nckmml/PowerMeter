@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -23,7 +22,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
@@ -32,13 +30,11 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.github.mikephil.charting.data.Entry;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.noid.powermeter.Model.BLEService;
 import com.noid.powermeter.databinding.ActivityMainBinding;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,13 +50,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean mBound = false;
     public ActivityResultLauncher<Intent> bluetoothActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        initView();
-                    }
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    initView();
                 }
             });
     BLEService mService;
@@ -87,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                                 mService.importList(records);
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -96,43 +86,51 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-
-    private ArrayList<ArrayList<String>> recordList;
 
     public ActivityResultLauncher<Intent> saveActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null
-                                && data.getData() != null) {
-                            OutputStream outputStream;
-                            try {
-                                outputStream = getContentResolver().openOutputStream(data.getData());
-                                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
-                                Log.i("File writer", "started writing to file");
-                                bw.write("Time,Voltage,Current,Power\n");
-                                ArrayList<ArrayList<String>> templist = new ArrayList<>(getRecordData());
-                                for (int i = 0; i < templist.size(); i++) {
-                                    bw.write(templist.get(i).get(0).toString() + "," + templist.get(i).get(1).toString() + "," + templist.get(i).get(2).toString() + "," + templist.get(i).get(3).toString() + "\n");
-                                }
-                                Log.i("File writer", "Finished writing to file");
-                                bw.flush();
-                                bw.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null
+                            && data.getData() != null) {
+                        OutputStream outputStream;
+                        try {
+                            outputStream = getContentResolver().openOutputStream(data.getData());
+                            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+                            Log.i("File writer", "started writing to file");
+                            bw.write("Time,Voltage,Current,Power\n");
+                            ArrayList<ArrayList<String>> templist = new ArrayList<>(getRecordData());
+                            for (int i = 0; i < templist.size(); i++) {
+                                bw.write(templist.get(i).get(0) + "," + templist.get(i).get(1) + "," + templist.get(i).get(2) + "," + templist.get(i).get(3) + "\n");
                             }
+                            Log.i("File writer", "Finished writing to file");
+                            bw.flush();
+                            bw.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
             });
+    private final ServiceConnection connection = new ServiceConnection() {
 
-    private ArrayList<ArrayList<Entry>> rawRecordList;
-    private int f0 = 0;
-    private ActivityMainBinding binding;
-    private ActivityResultLauncher<String> requestPermissionLauncher =
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            BLEService.MyBinder binder = (BLEService.MyBinder) service;
+            mService = binder.getService();
+            mBound = true;
+            Objects.requireNonNull(Objects.requireNonNull(getSupportFragmentManager().getPrimaryNavigationFragment()).getChildFragmentManager().getPrimaryNavigationFragment()).onResume();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     if (BluetoothAdapter.getDefaultAdapter().isEnabled())
@@ -143,23 +141,6 @@ public class MainActivity extends AppCompatActivity {
                     System.exit(1);
                 }
             });
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            BLEService.MyBinder binder = (BLEService.MyBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment().onResume();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -171,27 +152,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.exit:
-                Intent intent = new Intent(this, BLEService.class);
-                intent.setAction(BLEService.ACTION_STOP_NOTIFICATION_SERVICE);
-                startService(intent);
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.exit) {
+            Intent intent = new Intent(this, BLEService.class);
+            intent.setAction(BLEService.ACTION_STOP_NOTIFICATION_SERVICE);
+            startService(intent);
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.noid.powermeter.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_textdisplay, R.id.navigation_graph, R.id.navigation_bluetoothlist, R.id.navigation_export)
                 .build();
@@ -245,20 +220,6 @@ public class MainActivity extends AppCompatActivity {
         openActivityResultLauncher.launch(intent);
     }
 
-    private void writeInFile(@NonNull Uri uri, @NonNull String text) {
-        OutputStream outputStream;
-        try {
-            outputStream = getContentResolver().openOutputStream(uri);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
-            bw.write(text);
-            bw.flush();
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public void exportExcel(View view) {
         /*
         this.file = new File(getSDPath() + "/Etest");
@@ -274,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public ArrayList<ArrayList<String>> getRecordData() {
-        this.recordList = new ArrayList<>();
+        ArrayList<ArrayList<String>> recordList = new ArrayList<>();
         Log.i("getRecordData", "started getting record data");
         for (int i = 0; i < mService.returnList(4).size(); i++) {
             ArrayList<String> arrayList = new ArrayList<>();
@@ -282,22 +243,22 @@ public class MainActivity extends AppCompatActivity {
             arrayList.add(String.valueOf(mService.returnList(0).get(i)));
             arrayList.add(String.valueOf(mService.returnList(1).get(i)));
             arrayList.add(String.valueOf(mService.returnList(2).get(i)));
-            this.recordList.add(arrayList);
+            recordList.add(arrayList);
         }
         Log.i("getRecordData", "finished getting record data");
-        return this.recordList;
+        return recordList;
     }
 
     public ArrayList<ArrayList<Entry>> getRawRecordData() {
-        this.rawRecordList = new ArrayList<ArrayList<Entry>>();
+        ArrayList<ArrayList<Entry>> rawRecordList = new ArrayList<>();
         for (int j = 0; j <= 2; j++) {
             ArrayList<Entry> arrayList = new ArrayList<>();
             for (int i = 0; i < mService.returnList(4).size(); i++) {
                 arrayList.add(new Entry(i, (float) mService.returnList(j).get(i)));
             }
-            this.rawRecordList.add(arrayList);
+            rawRecordList.add(arrayList);
         }
-        return this.rawRecordList;
+        return rawRecordList;
     }
 
     public ArrayList<String> getTimeRecordData() {
@@ -319,10 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 anonVar = var;
                 return this;
             }
-        }.init(i)).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
+        }.init(i)).setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> {
         }).show();
     }
 
@@ -346,9 +304,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reset2(View view) {
-        if (this.adu == 2) {
-            this.f0 = 0;
-        } else {
+        if (this.adu != 2) {
             DialogClear(getString(R.string.Clear2), 3);
         }
     }

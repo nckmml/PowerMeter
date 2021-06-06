@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import com.noid.powermeter.Model.BLEService;
 import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentGraphBinding;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -36,35 +39,30 @@ public class GraphFragment extends Fragment {
     public GraphFragment() {
     }
 
-    public static GraphFragment newInstance(String param1, String param2) {
-        GraphFragment fragment = new GraphFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unregisterReceiver(receiver);
+        requireActivity().unregisterReceiver(receiver);
         binding = null;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
+        Log.d("GraphFragment", "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
         chart = binding.chart1;
         chart.getDescription().setEnabled(false);
         LineDataSet set1, set2, set3;
         MainActivity main = (MainActivity) getActivity();
-        if (main.mBound == true) {
+        assert main != null;
+        if (main.mBound) {
+            Log.d("GraphFragment", "mbound == true");
             set1 = new LineDataSet(main.getRawRecordData().get(0), "Voltage");
             set2 = new LineDataSet(main.getRawRecordData().get(1), "Current");
             set3 = new LineDataSet(main.getRawRecordData().get(2), "Power");
@@ -116,21 +114,21 @@ public class GraphFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentGraphBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BLEService.ALL_VALUE);
         intentFilter.addAction(BLEService.CONTENT_DEVICE);
-        getActivity().registerReceiver(receiver, intentFilter);
+        requireActivity().registerReceiver(receiver, intentFilter);
         return root;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        binding = FragmentGraphBinding.inflate(getLayoutInflater(), (ViewGroup) getView().getParent(), false);
+        binding = FragmentGraphBinding.inflate(getLayoutInflater(), (ViewGroup) requireView().getParent(), false);
         redrawChart();
     }
 
@@ -138,7 +136,8 @@ public class GraphFragment extends Fragment {
         LineDataSet set1, set2, set3;
         MainActivity main = (MainActivity) getActivity();
         View view = binding.getRoot();
-        if (main.mBound == true) {
+        assert main != null;
+        if (main.mBound) {
             set1 = new LineDataSet(main.getRawRecordData().get(0), "Voltage");
             set2 = new LineDataSet(main.getRawRecordData().get(1), "Current");
             set3 = new LineDataSet(main.getRawRecordData().get(2), "Power");
@@ -195,7 +194,6 @@ public class GraphFragment extends Fragment {
         }
 
         public void onReceive(Context context, Intent intent) {
-            char c = 65535;
             String action = intent.getAction();
             int hashCode = action.hashCode();
             if (hashCode == -678816493 && action.equals(BLEService.ALL_VALUE)) {
