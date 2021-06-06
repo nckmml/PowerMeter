@@ -27,9 +27,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.preference.PreferenceManager;
 
 import com.noid.powermeter.R;
+import com.noid.powermeter.ui.Repository;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -57,6 +60,13 @@ public class BLEService extends Service {
     private static BluetoothAdapter mAdapter;
     private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private final MyBinder binder = new MyBinder();
+
+    private final MutableLiveData<ArrayList<String>> mData = new MutableLiveData<>();
+
+    public LiveData<ArrayList<String>> getData(){
+        return mData;
+    }
+
     public ScanCallback mLeScanCallback = new ScanCallback() {
 
         @Override
@@ -124,8 +134,8 @@ public class BLEService extends Service {
 
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             byte[] bArr = bluetoothGattCharacteristic.getValue();
-            float f;
-            float f2;
+            float voltage;
+            float current;
             float valueOf = 0.0f;
             float valueOf2 = 0.0f;
             String str;
@@ -145,7 +155,7 @@ public class BLEService extends Service {
             DecimalFormat decimalFormat9 = new DecimalFormat("0000.0");
             DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
             DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
-            float valueOf3 = 0.0f;
+            float power = 0.0f;
             HashMap<String, String> datamap = new HashMap<>();
             if (bArr.length >= 3) {
                 if ((bArr[0] & 255) == 255 && bArr[2] == 1) {
@@ -155,64 +165,91 @@ public class BLEService extends Service {
                     mValue = UUIDs.concat(mValue, bArr);
                     if (mValue != null) {
                         if (mValue.length == 36) {
+                            ArrayList<String> data = new ArrayList<>();
                             StringBuilder dataBuilder = new StringBuilder();
+                            String capacity;
+                            String electricity;
+                            String carbon;
+                            String echarges;
+                            String time;
+                            String temperature;
+                            String eprice;
                             bArr = mValue;
                             switch (bArr[3]) {
                                 case 1:
-                                    datamap.put("device", "1");
-                                    f = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
-                                    datamap.put("voltage", (decimalFormat6.format(f) + "V"));
-                                    f2 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
-                                    datamap.put("current", (decimalFormat3.format(f2) + "A"));
+                                    data.add("1");
+                                    voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
+                                    data.add((decimalFormat6.format(voltage) + "V"));
+                                    current = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
+                                    data.add((decimalFormat3.format(current) + "A"));
+                                    power = (float) (((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 10.0d);
+                                    data.add((decimalFormat9.format(power) + "W"));
+                                    String powerfactor = (decimalFormat2.format(((double) (((bArr[22] & 255) * 256) + (bArr[23] & 255))) / 1000.0d) + "PF");
+                                    data.add(powerfactor);
+                                    electricity = (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh");
+                                    data.add(electricity);
                                     String format = decimalFormat8.format((((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) * 0.997d);
-                                    String substring = format.substring(0, format.length() + -4);
-                                    datamap.put("co2", (substring + "kg"));
+                                    carbon = format.substring(0, format.length() + -4);
+                                    data.add(carbon + "kg");
                                     String format2 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
-                                    String substring2 = format2.substring(0, format2.length() + -4);
-                                    datamap.put("echarges", substring2);
-                                    valueOf3 = (float) (((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 10.0d);
-                                    datamap.put("power", (decimalFormat9.format(valueOf3) + "W"));
-                                    datamap.put("powerfactor", (decimalFormat2.format(((double) (((bArr[22] & 255) * 256) + (bArr[23] & 255))) / 1000.0d) + "PF"));
-                                    datamap.put("electricity", (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh"));
-                                    datamap.put("acfreq", ((((double) (((bArr[20] & 255) * 256) + (bArr[21] & 255))) / 10.0d) + "Hz"));
+                                    echarges = format2.substring(0, format2.length() + -4);
+                                    data.add(echarges);
+                                    String acfreq = ((((double) (((bArr[20] & 255) * 256) + (bArr[21] & 255))) / 10.0d) + "Hz");
+                                    data.add(acfreq);
                                     int i = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
-                                    datamap.put("temperature", (i + "℃/" + decimalFormat.format((((double) i) * 1.8d) + 32.0d) + "℉"));
-                                    datamap.put("eprice", (decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d)));
+                                    temperature = (i + "℃/" + decimalFormat.format((((double) i) * 1.8d) + 32.0d) + "℉");
+                                    data.add(temperature);
+                                    eprice = (decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
+                                    data.add(eprice);
                                     if (bArr[30] == 0) {
-                                        datamap.put("backlight", (getString(R.string.Long_black)));
+                                        data.add(getString(R.string.Long_black));
                                     } else if (bArr[30] == 60) {
-                                        datamap.put("backlight", (getString(R.string.Long_bright)));
+                                        data.add(getString(R.string.Long_bright));
                                     } else {
-                                        datamap.put("backlight", (((int) bArr[30]) + getString(R.string.second)));
+                                        data.add(((int) bArr[30]) + getString(R.string.second));
                                     }
                                     dataBuilder.append("Voltage: ");
-                                    dataBuilder.append(datamap.get("voltage")).append("\n");
+                                    dataBuilder.append(decimalFormat6.format(voltage)).append("V").append("\n");
                                     dataBuilder.append("Current: ");
-                                    dataBuilder.append(datamap.get("current")).append("\n");
+                                    dataBuilder.append(decimalFormat3.format(current)).append("A").append("\n");
                                     dataBuilder.append("Power: ");
-                                    dataBuilder.append(datamap.get("power")).append("\n");
+                                    dataBuilder.append(decimalFormat9.format(power)).append("W").append("\n");
                                     dataBuilder.append("Power Factor: ");
-                                    dataBuilder.append(datamap.get("powerfactor")).append("\n");
+                                    dataBuilder.append(powerfactor).append("\n");
                                     dataBuilder.append("Electricity: ");
-                                    dataBuilder.append(datamap.get("electricity")).append("\n");
+                                    dataBuilder.append(electricity).append("\n");
                                     dataBuilder.append("CO2: ");
-                                    dataBuilder.append(datamap.get("co2")).append("\n");
+                                    dataBuilder.append(carbon).append("kg").append("\n");
                                     dataBuilder.append("Electricity charges: ");
-                                    dataBuilder.append(datamap.get("echarges")).append("\n");
+                                    dataBuilder.append(echarges).append("\n");
                                     dataBuilder.append("AC freq: ");
-                                    dataBuilder.append(datamap.get("acfreq")).append("\n");
+                                    dataBuilder.append(acfreq).append("\n");
                                     dataBuilder.append("Internal Temperature: ");
-                                    dataBuilder.append(datamap.get("temperature")).append("\n");
+                                    dataBuilder.append(temperature).append("\n");
                                     dataBuilder.append("Elec. price setting: ");
-                                    dataBuilder.append(datamap.get("eprice"));
+                                    dataBuilder.append(eprice);
                                     break;
                                 case 2:
-                                    datamap.put("device", "2");
+                                    data.add("2");
                                     f0++;
-                                    f = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
-                                    datamap.put("voltage", (decimalFormat6.format(f) + "V"));
-                                    f2 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
-                                    datamap.put("current", (decimalFormat3.format(f2) + "A"));
+                                    voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
+                                    data.add((decimalFormat6.format(voltage) + "V"));
+                                    current = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
+                                    data.add(decimalFormat3.format(current) + "A");
+                                    power = voltage * current;
+                                    String format3 = decimalFormat11.format(power);
+                                    String substring3 = format3.substring(0, format3.length() + -5);
+                                    data.add((substring3 + "W"));
+                                    capacity = (decimalFormat7.format(((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 100.0d) + "Ah");
+                                    data.add(capacity);
+                                    electricity = (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh");
+                                    data.add(electricity);
+                                    String format4 = decimalFormat8.format((((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) * 0.997d);
+                                    carbon = format4.substring(0, format4.length() + -4);
+                                    data.add(carbon + "kg");
+                                    String format5 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
+                                    echarges = format5.substring(0, format5.length() - 4);
+                                    data.add(echarges);
                                     if (f0 / 3600 < 10) {
                                         str = "00" + (f0 / 3600);
                                     } else if (f0 / 3600 < 100) {
@@ -230,62 +267,60 @@ public class BLEService extends Service {
                                     } else {
                                         str3 = "" + (f0 % 60);
                                     }
-                                    datamap.put("time", (str + ":" + str2 + ":" + str3));
-                                    valueOf3 = f * f2;
-                                    String format3 = decimalFormat11.format(valueOf3);
-                                    String substring3 = format3.substring(0, format3.length() + -5);
-                                    datamap.put("power", (substring3 + "W"));
-                                    String format4 = decimalFormat8.format((((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) * 0.997d);
-                                    String substring4 = format4.substring(0, format4.length() + -4);
-                                    datamap.put("co2", (substring4 + "kg"));
-                                    String format5 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
-                                    String substring5 = format5.substring(0, format5.length() - 4);
-                                    datamap.put("echarges", substring5);
-                                    datamap.put("capacity", (decimalFormat7.format(((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 100.0d) + "Ah"));
-                                    datamap.put("electricity", (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh"));
-                                    datamap.put("eprice", decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
+                                    time = (str + ":" + str2 + ":" + str3);
+                                    data.add(time);
+                                    int i2 = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
+                                    temperature = (i2 + "℃/" + decimalFormat.format((((double) i2) * 1.8d) + 32.0d) + "℉");
+                                    data.add(temperature);
+                                    eprice = decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d);
+                                    data.add(eprice);
                                     if (bArr[30] == 0) {
-                                        datamap.put("backlight", (getString(R.string.Long_black)));
+                                        data.add(getString(R.string.Long_black));
                                     } else if (bArr[30] == 60) {
-                                        datamap.put("backlight", (getString(R.string.Long_bright)));
+                                        data.add(getString(R.string.Long_bright));
                                     } else {
-                                        datamap.put("backlight", (((int) bArr[30]) + getString(R.string.second)));
+                                        data.add(((int) bArr[30]) + getString(R.string.second));
                                     }
                                     dataBuilder.append("Voltage: ");
-                                    dataBuilder.append(datamap.get("Voltage")).append("\n");
+                                    dataBuilder.append(decimalFormat6.format(voltage)).append("V").append("\n");
                                     dataBuilder.append("Current: ");
-                                    dataBuilder.append(datamap.get("current")).append("\n");
+                                    dataBuilder.append(decimalFormat3.format(current)).append("A").append("\n");
                                     dataBuilder.append("Power: ");
-                                    dataBuilder.append(datamap.get("power")).append("\n");
+                                    dataBuilder.append(substring3).append("W").append("\n");
                                     dataBuilder.append("Capacity: ");
-                                    dataBuilder.append(datamap.get("capacity")).append("\n");
+                                    dataBuilder.append(capacity).append("\n");
                                     dataBuilder.append("Electricity: ");
-                                    dataBuilder.append(datamap.get("electricity")).append("\n");
+                                    dataBuilder.append(electricity).append("\n");
                                     dataBuilder.append("CO2: ");
-                                    dataBuilder.append(datamap.get("co2")).append("\n");
+                                    dataBuilder.append(carbon).append("kg").append("\n");
                                     dataBuilder.append("Electricity charges: ");
-                                    dataBuilder.append(datamap.get("echarges")).append("\n");
+                                    dataBuilder.append(echarges).append("\n");
                                     dataBuilder.append("Time record: ");
-                                    dataBuilder.append(datamap.get("time")).append("\n");
+                                    dataBuilder.append(time).append("\n");
+                                    dataBuilder.append("Internal Temperature: ");
+                                    dataBuilder.append(temperature).append("\n");
                                     dataBuilder.append("Elec. price setting: ");
-                                    dataBuilder.append(datamap.get("eprice"));
+                                    dataBuilder.append(eprice);
                                     break;
                                 case 3:
-                                    datamap.put("device", "3");
-                                    f = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d);
-                                    datamap.put("voltage", (decimalFormat5.format(f) + "V"));
+                                    data.add("3");
+                                    voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d);
+                                    data.add((decimalFormat5.format(voltage) + "V"));
                                     float valueOf4 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 100.0d);
-                                    datamap.put("current", (decimalFormat5.format(valueOf4) + "A"));
-                                    valueOf3 = f * valueOf4;
-                                    String format6 = decimalFormat11.format(valueOf3);
+                                    data.add(decimalFormat5.format(valueOf4) + "A");
+                                    power = voltage * valueOf4;
+                                    String format6 = decimalFormat11.format(power);
                                     String substring6 = format6.substring(0, format6.length() + -4);
-                                    datamap.put("power", (substring6 + "W"));
-                                    String sb3 = ReservedInt((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256) + (bArr[12] & 255)) + "") +
+                                    data.add((substring6 + "W"));
+                                    capacity = ReservedInt((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256) + (bArr[12] & 255)) + "") +
                                             "mAh";
-                                    datamap.put("capacity", (sb3));
-                                    datamap.put("electricity", (decimalFormat10.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "Wh"));
-                                    datamap.put("dplus", (decimalFormat2.format(((double) (((bArr[19] & 255) * 256) + (bArr[20] & 255))) / 100.0d) + "V"));
-                                    datamap.put("dminus", (decimalFormat2.format(((double) (((bArr[17] & 255) * 256) + (bArr[18] & 255))) / 100.0d) + "V"));
+                                    data.add(capacity);
+                                    electricity = (decimalFormat10.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "Wh");
+                                    data.add(electricity);
+                                    String dplus = (decimalFormat2.format(((double) (((bArr[19] & 255) * 256) + (bArr[20] & 255))) / 100.0d) + "V");
+                                    data.add(dplus);
+                                    String dminus = (decimalFormat2.format(((double) (((bArr[17] & 255) * 256) + (bArr[18] & 255))) / 100.0d) + "V");
+                                    data.add(dminus);
                                     if (((bArr[23] & 255) * 256) + (bArr[24] & 255) < 10) {
                                         str4 = "00" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
                                     } else if (((bArr[23] & 255) * 256) + (bArr[24] & 255) < 100) {
@@ -303,45 +338,48 @@ public class BLEService extends Service {
                                     } else {
                                         str6 = "" + ((int) bArr[26]);
                                     }
-                                    datamap.put("time", (str4 + ":" + str5 + ":" + str6));
+                                    time = (str4 + ":" + str5 + ":" + str6);
+                                    data.add(time);
                                     int i3 = ((bArr[21] & 255) * 256) + (bArr[22] & 255);
-                                    datamap.put("temperature", (i3 + "℃/" + decimalFormat.format((((double) i3) * 1.8d) + 32.0d) + "℉"));
-                                    f2 = valueOf4;
+                                    temperature = (i3 + "℃/" + decimalFormat.format((((double) i3) * 1.8d) + 32.0d) + "℉");
+                                    data.add(temperature);
+                                    current = valueOf4;
                                     if (bArr[27] == 0) {
-                                        datamap.put("backlight", (getString(R.string.Long_black)));
+                                        data.add(getString(R.string.Long_black));
                                     } else if (bArr[27] == 60) {
-                                        datamap.put("backlight", (getString(R.string.Long_bright)));
+                                        data.add(getString(R.string.Long_bright));
                                     } else {
-                                        datamap.put("backlight", (((int) bArr[27]) + getString(R.string.second)));
+                                        data.add(((int) bArr[27]) + getString(R.string.second));
                                     }
                                     dataBuilder.append("Voltage: ");
-                                    dataBuilder.append(datamap.get("voltage")).append("\n");
+                                    dataBuilder.append(decimalFormat5.format(voltage)).append("V").append("\n");
                                     dataBuilder.append("Current: ");
-                                    dataBuilder.append(datamap.get("current")).append("\n");
+                                    dataBuilder.append(decimalFormat5.format(valueOf4)).append("A").append("\n");
                                     dataBuilder.append("Power: ");
-                                    dataBuilder.append(datamap.get("power")).append("\n");
+                                    dataBuilder.append(substring6).append("W").append("\n");
                                     dataBuilder.append("Capacity: ");
-                                    dataBuilder.append(datamap.get("capacity")).append("\n");
+                                    dataBuilder.append(capacity).append("\n");
                                     dataBuilder.append("Electricity: ");
-                                    dataBuilder.append(datamap.get("electricity")).append("\n");
+                                    dataBuilder.append(electricity).append("\n");
                                     dataBuilder.append("USB D+: ");
-                                    dataBuilder.append(datamap.get("dplus")).append("\n");
+                                    dataBuilder.append(dplus).append("\n");
                                     dataBuilder.append("USB D-: ");
-                                    dataBuilder.append(datamap.get("dminus")).append("\n");
+                                    dataBuilder.append(dminus).append("\n");
                                     dataBuilder.append("Time record: ");
-                                    dataBuilder.append(datamap.get("time")).append("\n");
+                                    dataBuilder.append(time).append("\n");
                                     dataBuilder.append("Internal Temperature: ");
-                                    dataBuilder.append(datamap.get("temperature"));
+                                    dataBuilder.append(temperature);
                                     break;
                                 default:
-                                    f = valueOf;
-                                    f2 = valueOf2;
+                                    voltage = valueOf;
+                                    current = valueOf2;
                                     break;
                             }
                             updateNotification(dataBuilder.toString());
-                            list0.add(f);
-                            list1.add(f2);
-                            list2.add(valueOf3);
+                            mData.postValue(data);
+                            list0.add(voltage);
+                            list1.add(current);
+                            list2.add(power);
                             timeList.add(df.format(System.currentTimeMillis()));
                         }
                     }
@@ -404,6 +442,7 @@ public class BLEService extends Service {
     public void onCreate() {
         super.onCreate();
         initBluetooth();
+        Repository.instance().addData(getData());
         this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         bluetooth_device_address = this.mSharedPreferences.getString("DEVICE_ADDRESS", null);
     }

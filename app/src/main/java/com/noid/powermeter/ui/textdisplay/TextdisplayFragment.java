@@ -1,11 +1,6 @@
 package com.noid.powermeter.ui.textdisplay;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
-import com.noid.powermeter.MainActivity;
 import com.noid.powermeter.Model.BLEService;
 import com.noid.powermeter.R;
 import com.noid.powermeter.databinding.FragmentTextdisplayBinding;
 
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.ArrayList;
 
 public class TextdisplayFragment extends Fragment {
 
@@ -53,17 +48,14 @@ public class TextdisplayFragment extends Fragment {
     public Button button2;
     public Button button3;
     public ConstraintLayout layoutBL;
-    value receiver = new value();
     private FragmentTextdisplayBinding binding;
+    private int adu;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        TextdisplayViewModel textdisplayViewModel = new ViewModelProvider(this).get(TextdisplayViewModel.class);
         binding = FragmentTextdisplayBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BLEService.ALL_VALUE);
-        intentFilter.addAction(BLEService.CONTENT_DEVICE);
-        requireActivity().registerReceiver(receiver, intentFilter);
         textVoltage = binding.textVoltage;
         textCurrent = binding.textCurrent;
         textPower = binding.textPower;
@@ -90,6 +82,63 @@ public class TextdisplayFragment extends Fragment {
         button2 = binding.button2;
         button3 = binding.button3;
         layoutBL = binding.layoutBL;
+        final Observer<ArrayList<String >> dataObserver = newData -> {
+            adu = Integer.parseInt(newData.get(0));
+            switch (adu) {
+                case 1:
+                    button.setVisibility(View.GONE);
+                    button2.setVisibility(View.GONE);
+                    layoutBL.setVisibility(View.VISIBLE);
+                    chipAc.setChecked(true);
+                    chipDc.setChecked(false);
+                    chipUsb.setChecked(false);
+                    text5.setText(getText(R.string.Power_Factor));
+                    text7.setText(getText(R.string.carbon_dioxide));
+                    text8.setText(getText(R.string.Cumulative_electricity_bill));
+                    text9.setText(getText(R.string.AC_frequency));
+                    text11.setText(getText(R.string.Electricity_price_setting));
+                    textBLV.setText(newData.get(11));
+                    break;
+                case 2:
+                    button.setVisibility(View.VISIBLE);
+                    button2.setVisibility(View.VISIBLE);
+                    layoutBL.setVisibility(View.VISIBLE);
+                    chipAc.setChecked(false);
+                    chipDc.setChecked(true);
+                    chipUsb.setChecked(false);
+                    text5.setText(getText(R.string.Cumulative_capacity));
+                    text7.setText(getText(R.string.carbon_dioxide));
+                    text8.setText(getText(R.string.Cumulative_electricity_bill));
+                    text9.setText(getText(R.string.time_record));
+                    text11.setText(getText(R.string.Electricity_price_setting));
+                    textBLV.setText(newData.get(11));
+                    break;
+                case 3:
+                    button.setVisibility(View.VISIBLE);
+                    button2.setVisibility(View.VISIBLE);
+                    layoutBL.setVisibility(View.GONE);
+                    chipAc.setChecked(false);
+                    chipDc.setChecked(false);
+                    chipUsb.setChecked(true);
+                    text5.setText(getText(R.string.Cumulative_capacity));
+                    text7.setText(R.string.DataPlus);
+                    text8.setText(R.string.DataMinus);
+                    text9.setText(getText(R.string.time_record));
+                    text11.setText(getText(R.string.Backlight));
+                    break;
+            }
+            textVoltage.setText(newData.get(1));
+            textCurrent.setText(newData.get(2));
+            textPower.setText(newData.get(3));
+            textFactor.setText(newData.get(4));
+            textCumulative.setText(newData.get(5));
+            textcarbon.setText(newData.get(6));
+            textBill.setText(newData.get(7));
+            textAC.setText(newData.get(8));
+            textInternal.setText(newData.get(9));
+            textElectricity.setText(newData.get(10));
+        };
+        textdisplayViewModel.getData().observe(getViewLifecycleOwner(), dataObserver);
         if (BLEService.mBluetoothGatt != null)
             textName.setText(BLEService.mBluetoothGatt.getDevice().getName());
         return root;
@@ -98,124 +147,6 @@ public class TextdisplayFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        requireActivity().unregisterReceiver(receiver);
         binding = null;
-    }
-
-    private void updateText(HashMap<String, String> datamap) {
-        Log.d("updateText()", "Received data to update");
-        int adu = Integer.parseInt(Objects.requireNonNull(datamap.get("device")));
-        MainActivity main = (MainActivity) getActivity();
-        assert main != null;
-        main.adu = adu;
-        switch (adu) {
-            case 1:
-                Log.d("updateText()", "updating 1");
-                this.button.setVisibility(View.GONE);
-                this.button2.setVisibility(View.GONE);
-                this.layoutBL.setVisibility(View.VISIBLE);
-                this.chipAc.setChecked(true);
-                this.chipDc.setChecked(false);
-                this.chipUsb.setChecked(false);
-                this.text5.setText(getText(R.string.Power_Factor));
-                this.text7.setText(getText(R.string.carbon_dioxide));
-                this.text8.setText(getText(R.string.Cumulative_electricity_bill));
-                this.text9.setText(getText(R.string.AC_frequency));
-                this.text11.setText(getText(R.string.Electricity_price_setting));
-                this.textVoltage.setText(datamap.get("voltage"));
-                this.textCurrent.setText(datamap.get("current"));
-                this.textPower.setText(datamap.get("power"));
-                this.textFactor.setText(datamap.get("powerfactor"));
-                this.textCumulative.setText(datamap.get("electricity"));
-                this.textcarbon.setText(datamap.get("co2"));
-                this.textBill.setText(datamap.get("echarges"));
-                this.textAC.setText(datamap.get("acfreq"));
-                this.textInternal.setText(datamap.get("temperature"));
-                this.textElectricity.setText(datamap.get("eprice"));
-                this.textBLV.setText(datamap.get("backlight"));
-                break;
-            case 2:
-                Log.d("updateText()", "updating 2");
-                this.button.setVisibility(View.VISIBLE);
-                this.button2.setVisibility(View.VISIBLE);
-                this.layoutBL.setVisibility(View.VISIBLE);
-                this.chipAc.setChecked(false);
-                this.chipDc.setChecked(true);
-                this.chipUsb.setChecked(false);
-                this.text5.setText(getText(R.string.Cumulative_capacity));
-                this.text7.setText(getText(R.string.carbon_dioxide));
-                this.text8.setText(getText(R.string.Cumulative_electricity_bill));
-                this.text9.setText(getText(R.string.time_record));
-                this.text11.setText(getText(R.string.Electricity_price_setting));
-                this.textVoltage.setText(datamap.get("voltage"));
-                this.textCurrent.setText(datamap.get("current"));
-                this.textPower.setText(datamap.get("power"));
-                this.textFactor.setText(datamap.get("capacity"));
-                this.textCumulative.setText(datamap.get("electricity"));
-                this.textcarbon.setText(datamap.get("co2"));
-                this.textBill.setText(datamap.get("echarges"));
-                this.textAC.setText(datamap.get("time"));
-                this.textInternal.setText(datamap.get("temperature"));
-                this.textElectricity.setText(datamap.get("eprice"));
-                this.textBLV.setText(datamap.get("backlight"));
-                break;
-            case 3:
-                Log.d("updateText()", "updating 3");
-                this.button.setVisibility(View.VISIBLE);
-                this.button2.setVisibility(View.VISIBLE);
-                this.layoutBL.setVisibility(View.GONE);
-                this.chipAc.setChecked(false);
-                this.chipDc.setChecked(false);
-                this.chipUsb.setChecked(true);
-                this.text5.setText(getText(R.string.Cumulative_capacity));
-                this.text7.setText(R.string.DataPlus);
-                this.text8.setText(R.string.DataMinus);
-                this.text9.setText(getText(R.string.time_record));
-                this.text11.setText(getText(R.string.Backlight));
-                this.textVoltage.setText(datamap.get("voltage"));
-                this.textCurrent.setText(datamap.get("current"));
-                this.textPower.setText(datamap.get("power"));
-                this.textFactor.setText(datamap.get("capacity"));
-                this.textCumulative.setText(datamap.get("electricity"));
-                this.textcarbon.setText(datamap.get("dplus"));
-                this.textBill.setText(datamap.get("dminus"));
-                this.textAC.setText(datamap.get("time"));
-                this.textInternal.setText(datamap.get("temperature"));
-                this.textElectricity.setText(datamap.get("backlight"));
-                break;
-        }
-    }
-
-    public class value extends BroadcastReceiver {
-        public value() {
-        }
-
-        public void onReceive(Context context, Intent intent) {
-            char c = 65535;
-            String action = intent.getAction();
-            int hashCode = action.hashCode();
-            if (hashCode != -678816493) {
-                if (hashCode == 513534204 && action.equals(BLEService.CONTENT_DEVICE)) {
-                    c = 1;
-                }
-            } else if (action.equals(BLEService.ALL_VALUE)) {
-                c = 0;
-            }
-            switch (c) {
-                case 0:
-                    HashMap<String, String> datamap = (HashMap<String, String>) intent.getSerializableExtra(BLEService.ALL_VALUE);
-                    if (datamap.size() > 0)
-                        updateText(datamap);
-                    return;
-                case 1:
-                    if (intent.getExtras().getBoolean(BLEService.CONTENT_DEVICE)) {
-                        textName.setText(BLEService.mBluetoothGatt.getDevice().getName());
-                        return;
-                    }
-                    textName.setText("");
-                    return;
-                default:
-            }
-        }
     }
 }
