@@ -197,9 +197,7 @@ public class GraphFragment extends Fragment {
             String action = intent.getAction();
             int hashCode = action.hashCode();
             if (hashCode == -678816493 && action.equals(BLEService.ALL_VALUE)) {
-                HashMap<String, String> datamap = (HashMap<String, String>) intent.getSerializableExtra(BLEService.ALL_VALUE);
-                if (datamap.size() > 0)
-                    redrawChart();
+                redrawChart();
             }
         }
     }
