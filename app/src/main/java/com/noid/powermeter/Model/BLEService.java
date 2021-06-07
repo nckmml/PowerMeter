@@ -31,6 +31,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.preference.PreferenceManager;
 
+import com.github.mikephil.charting.data.Entry;
 import com.noid.powermeter.R;
 import com.noid.powermeter.ui.Repository;
 
@@ -38,7 +39,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -46,7 +46,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 public class BLEService extends Service {
-    public static final String ALL_VALUE = "ALL_VALUE";
     public static final String BLUETOOTH_DEVICE = "BLUETOOTH_DEVICE";
     public static final String CONTENT_DEVICE = "CONTENT_DEVICE";
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
@@ -62,9 +61,32 @@ public class BLEService extends Service {
     private final MyBinder binder = new MyBinder();
 
     private final MutableLiveData<ArrayList<String>> mData = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<Entry>> mVoltageData = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<Entry>> mCurrentData = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<Entry>> mPowerData = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<String>> mTimeRecordData = new MutableLiveData<>();
+
+    private ArrayList<Entry> VoltageData = new ArrayList<>();
+    private ArrayList<Entry> CurrentData = new ArrayList<>();
+    private ArrayList<Entry> PowerData = new ArrayList<>();
+    private ArrayList<String> TimeRecordData = new ArrayList<>();
+
+    private int entryCount = 0;
 
     public LiveData<ArrayList<String>> getData(){
         return mData;
+    }
+    public LiveData<ArrayList<Entry>> getVoltageData() {
+        return mVoltageData;
+    }
+    public LiveData<ArrayList<Entry>> getCurrentData() {
+        return mCurrentData;
+    }
+    public LiveData<ArrayList<Entry>> getPowerData() {
+        return mPowerData;
+    }
+    public LiveData<ArrayList<String>> getTimeRecordData() {
+        return mTimeRecordData;
     }
 
     public ScanCallback mLeScanCallback = new ScanCallback() {
@@ -156,7 +178,6 @@ public class BLEService extends Service {
             DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
             DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
             float power = 0.0f;
-            HashMap<String, String> datamap = new HashMap<>();
             if (bArr.length >= 3) {
                 if ((bArr[0] & 255) == 255 && bArr[2] == 1) {
                     mValue = bArr;
@@ -377,15 +398,19 @@ public class BLEService extends Service {
                             }
                             updateNotification(dataBuilder.toString());
                             mData.postValue(data);
-                            list0.add(voltage);
-                            list1.add(current);
-                            list2.add(power);
-                            timeList.add(df.format(System.currentTimeMillis()));
+                            VoltageData.add(new Entry(entryCount, voltage));
+                            CurrentData.add(new Entry(entryCount, current));
+                            PowerData.add(new Entry(entryCount, power));
+                            TimeRecordData.add(df.format(System.currentTimeMillis()));
+                            mVoltageData.postValue(VoltageData);
+                            mCurrentData.postValue(CurrentData);
+                            mPowerData.postValue(PowerData);
+                            mTimeRecordData.postValue(TimeRecordData);
+                            entryCount++;
                         }
                     }
                 }
             }
-            BLEService.this.broadcastMap(BLEService.ALL_VALUE, datamap);
         }
     };
 
@@ -417,32 +442,47 @@ public class BLEService extends Service {
     }
 
     public void importList(ArrayList<ArrayList<String>> records) {
-        List<Float> templist0 = new ArrayList<>();
-        List<Float> templist1 = new ArrayList<>();
-        List<Float> templist2 = new ArrayList<>();
-        List<String> temptimeList = new ArrayList<>();
-        for (int i = 0; i < records.size(); i++) {
-            templist0.add(Float.parseFloat(records.get(i).get(1)));
-            templist1.add(Float.parseFloat(records.get(i).get(2)));
-            templist2.add(Float.parseFloat(records.get(i).get(3)));
+        int tempcount = 0;
+        ArrayList<Entry> templist0 = new ArrayList<>();
+        ArrayList<Entry> templist1 = new ArrayList<>();
+        ArrayList<Entry> templist2 = new ArrayList<>();
+        ArrayList<String> temptimeList = new ArrayList<>();
+        for (int i = 0; i < records.size(); i++){
+            templist0.add(new Entry(tempcount, Float.parseFloat(records.get(i).get(1))));
+            templist1.add(new Entry(tempcount, Float.parseFloat(records.get(i).get(2))));
+            templist2.add(new Entry(tempcount, Float.parseFloat(records.get(i).get(3))));
             temptimeList.add(records.get(i).get(0));
+            tempcount++;
         }
-        if (timeList.size() != 0) {
-            templist0.addAll(list0);
-            templist1.addAll(list1);
-            templist2.addAll(list2);
-            temptimeList.addAll(timeList);
+        if (entryCount != 0) {
+            for (int i = 0; i < entryCount; i++){
+                templist0.add(new Entry(tempcount, VoltageData.get(i).getY()));
+                templist1.add(new Entry(tempcount, CurrentData.get(i).getY()));
+                templist2.add(new Entry(tempcount, PowerData.get(i).getY()));
+                temptimeList.add(TimeRecordData.get(i));
+                tempcount++;
+            }
         }
-        list0 = new ArrayList<>(templist0);
-        list1 = new ArrayList<>(templist1);
-        list2 = new ArrayList<>(templist2);
-        timeList = new ArrayList<>(temptimeList);
+
+        VoltageData = new ArrayList<>(templist0);
+        CurrentData = new ArrayList<>(templist1);
+        PowerData = new ArrayList<>(templist2);
+        TimeRecordData = new ArrayList<>(temptimeList);
+        entryCount = tempcount;
+        mVoltageData.postValue(VoltageData);
+        mCurrentData.postValue(CurrentData);
+        mPowerData.postValue(PowerData);
+        mTimeRecordData.postValue(TimeRecordData);
     }
 
     public void onCreate() {
         super.onCreate();
         initBluetooth();
         Repository.instance().addData(getData());
+        Repository.instance().addVoltageData(getVoltageData());
+        Repository.instance().addCurrentData(getCurrentData());
+        Repository.instance().addPowerData(getPowerData());
+        Repository.instance().addTimeRecordData(getTimeRecordData());
         this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         bluetooth_device_address = this.mSharedPreferences.getString("DEVICE_ADDRESS", null);
     }
@@ -574,12 +614,6 @@ public class BLEService extends Service {
     public void broadcastUpdate(String str, BluetoothDevice bluetoothDevice) {
         Intent intent = new Intent(str);
         intent.putExtra(str, bluetoothDevice);
-        sendBroadcast(intent);
-    }
-
-    public void broadcastMap(String str, HashMap<String, String> map) {
-        Intent intent = new Intent(str);
-        intent.putExtra(str, map);
         sendBroadcast(intent);
     }
 
