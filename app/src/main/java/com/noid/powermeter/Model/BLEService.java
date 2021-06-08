@@ -47,7 +47,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 public class BLEService extends Service {
-    public static final String BLUETOOTH_DEVICE = "BLUETOOTH_DEVICE";
     public static final String CONTENT_DEVICE = "CONTENT_DEVICE";
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
     public static final String ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE";
@@ -66,11 +65,13 @@ public class BLEService extends Service {
     private final MutableLiveData<ArrayList<Entry>> mCurrentData = new MutableLiveData<>();
     private final MutableLiveData<ArrayList<Entry>> mPowerData = new MutableLiveData<>();
     private final MutableLiveData<ArrayList<String>> mTimeRecordData = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<BluetoothDevice>> mBluetoothDevices = new MutableLiveData<>();
 
     private ArrayList<Entry> VoltageData = new ArrayList<>();
     private ArrayList<Entry> CurrentData = new ArrayList<>();
     private ArrayList<Entry> PowerData = new ArrayList<>();
     private ArrayList<String> TimeRecordData = new ArrayList<>();
+    private final ArrayList<BluetoothDevice> BluetoothDevices = new ArrayList<>();
 
     private int entryCount = 0;
 
@@ -89,6 +90,9 @@ public class BLEService extends Service {
     public LiveData<ArrayList<String>> getTimeRecordData() {
         return mTimeRecordData;
     }
+    public LiveData<ArrayList<BluetoothDevice>> getBluetoothDevices(){
+        return mBluetoothDevices;
+    }
 
     public ScanCallback mLeScanCallback = new ScanCallback() {
 
@@ -99,7 +103,10 @@ public class BLEService extends Service {
                 BLEService.this.scan(false);
                 BLEService.this.connect(BLEService.bluetooth_device_address);
             }
-            BLEService.this.broadcastUpdate(BLEService.BLUETOOTH_DEVICE, result.getDevice());
+            if (!BluetoothDevices.contains(result.getDevice())) {
+                BluetoothDevices.add(result.getDevice());
+                mBluetoothDevices.postValue(BluetoothDevices);
+            }
         }
     };
     private byte[] mValue;
@@ -478,6 +485,7 @@ public class BLEService extends Service {
         Repository.instance().addCurrentData(getCurrentData());
         Repository.instance().addPowerData(getPowerData());
         Repository.instance().addTimeRecordData(getTimeRecordData());
+        Repository.instance().addBluetoothDevice(getBluetoothDevices());
         this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         bluetooth_device_address = this.mSharedPreferences.getString("DEVICE_ADDRESS", null);
     }
@@ -608,12 +616,6 @@ public class BLEService extends Service {
                 }
             }
         }
-    }
-
-    public void broadcastUpdate(String str, BluetoothDevice bluetoothDevice) {
-        Intent intent = new Intent(str);
-        intent.putExtra(str, bluetoothDevice);
-        sendBroadcast(intent);
     }
 
     public void broadcastConnect(String str, boolean z) {

@@ -1,5 +1,7 @@
 package com.noid.powermeter.ui;
 
+import android.bluetooth.BluetoothDevice;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
@@ -15,6 +17,7 @@ public class Repository {
     private final MediatorLiveData<ArrayList<Entry>> mCurrentData = new MediatorLiveData<>();
     private final MediatorLiveData<ArrayList<Entry>> mPowerData = new MediatorLiveData<>();
     private final MediatorLiveData<ArrayList<String>> mTimeRecordData = new MediatorLiveData<>();
+    private final MediatorLiveData<ArrayList<BluetoothDevice>> mBluetoothDevices = new MediatorLiveData<>();
 
 
     private Repository() {}
@@ -38,6 +41,9 @@ public class Repository {
     public LiveData<ArrayList<String>> getTimeRecordData(){
         return mTimeRecordData;
     }
+    public LiveData<ArrayList<BluetoothDevice>> getBluetoothDevices(){
+        return mBluetoothDevices;
+    }
 
     public void addData(LiveData<ArrayList<String>> data) {
         mData.addSource(data, mData::setValue);
@@ -57,5 +63,9 @@ public class Repository {
 
     public void addTimeRecordData(LiveData<ArrayList<String>> timeRecordData) {
         mTimeRecordData.addSource(timeRecordData, mTimeRecordData::setValue);
+    }
+
+    public void addBluetoothDevice(LiveData<ArrayList<BluetoothDevice>> bluetoothDevices) {
+        mBluetoothDevices.addSource(bluetoothDevices, mBluetoothDevices::setValue);
     }
 }

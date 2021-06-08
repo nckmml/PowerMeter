@@ -28,15 +28,15 @@ import java.util.ArrayList;
 
 public class TableFragment extends Fragment {
 
-    private TableViewModel mViewModel;
     private RecyclerView rv_records;
     private RecyclerViewAdapter adapter;
+
     private final ArrayList<ArrayList> records = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(TableViewModel.class);
+        TableViewModel mViewModel = new ViewModelProvider(this).get(TableViewModel.class);
         com.noid.powermeter.databinding.FragmentTableBinding binding = FragmentTableBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         rv_records = binding.ListRecord;
@@ -69,10 +69,10 @@ public class TableFragment extends Fragment {
             }
         };
         rv_records.setAdapter(adapter);
-        records.add(new ArrayList());
-        records.add(new ArrayList());
-        records.add(new ArrayList());
-        records.add(new ArrayList());
+        records.add(new ArrayList<>());
+        records.add(new ArrayList<>());
+        records.add(new ArrayList<>());
+        records.add(new ArrayList<>());
         final Observer<ArrayList<String>> timeRecordObserver = newData -> {
             records.set(0, newData);
         };

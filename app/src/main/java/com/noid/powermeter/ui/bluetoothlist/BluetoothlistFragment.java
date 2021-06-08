@@ -1,11 +1,9 @@
 package com.noid.powermeter.ui.bluetoothlist;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -18,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,11 +32,11 @@ import java.util.ArrayList;
 
 public class BluetoothlistFragment extends Fragment {
 
-    private final ArrayList<BluetoothDevice> devices = new ArrayList<>();
+    private ArrayList<BluetoothDevice> devices = new ArrayList<>();
     private FragmentBluetoothlistBinding binding;
-    private value receiver;
     private RecyclerViewAdapter adapter;
     private BLEService mBleService;
+    private BluetoothlistViewModel bluetoothlistViewModel;
     private final ServiceConnection conn = new ServiceConnection() {
         /* class com.tang.etest.e_test.Model.ScanActivity.AnonymousClass3 */
 
@@ -55,6 +54,7 @@ public class BluetoothlistFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        bluetoothlistViewModel = new BluetoothlistViewModel();
         binding = FragmentBluetoothlistBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         this.lv_device = binding.ListDevice;
@@ -64,16 +64,16 @@ public class BluetoothlistFragment extends Fragment {
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(this.lv_device.getContext(), mLayoutManager.getOrientation());
         this.lv_device.addItemDecoration(mDividerItemDecoration);
         scanDevice();
-        this.receiver = new value();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BLEService.BLUETOOTH_DEVICE);
-        requireActivity().registerReceiver(this.receiver, intentFilter);
         requireActivity().bindService(new Intent(getActivity(), BLEService.class), this.conn, Context.BIND_AUTO_CREATE);
+        final Observer<ArrayList<BluetoothDevice>> bluetoothObserver = newData -> {
+            devices = newData;
+            adapter.notifyDataSetChanged();
+        };
+        bluetoothlistViewModel.getBluetoothDevices().observe(getViewLifecycleOwner(), bluetoothObserver);
         return root;
     }
 
     private void scanDevice() {
-        Log.i("DEBUG", "Scan eingeleitet");
         this.adapter = new RecyclerViewAdapter(devices) {
             private final RecyclerView.OnClickListener mOnClickListener = new RecyclerView.OnClickListener() {
 
@@ -120,27 +120,9 @@ public class BluetoothlistFragment extends Fragment {
     @Override
     public void onDestroyView() {
         requireActivity().unbindService(this.conn);
-        requireActivity().unregisterReceiver(this.receiver);
         this.mBleService.scan(false);
         super.onDestroyView();
         binding = null;
-    }
-
-    public class value extends BroadcastReceiver {
-        public value() {
-        }
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.i("Install:", intent.getExtras().get(BLEService.BLUETOOTH_DEVICE) + "");
-            if (((action.hashCode() == -277749465 && action.equals(BLEService.BLUETOOTH_DEVICE)) ? (char) 0 : 65535) == 0) {
-                BluetoothDevice bluetoothDevice = (BluetoothDevice) intent.getExtras().get(BLEService.BLUETOOTH_DEVICE);
-                if (!BluetoothlistFragment.this.devices.contains(bluetoothDevice)) {
-                    BluetoothlistFragment.this.devices.add(bluetoothDevice);
-                    BluetoothlistFragment.this.adapter.notifyDataSetChanged();
-                }
-            }
-        }
     }
 
     public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {

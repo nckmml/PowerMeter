@@ -110,10 +110,10 @@ public class MainActivity extends AppCompatActivity {
                             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
                             Log.i("File writer", "started writing to file");
                             bw.write("Time,Voltage,Current,Power\n");
-                            ArrayList<Entry> voltagelist = new ArrayList(getVoltageData());
-                            ArrayList<Entry> currentlist = new ArrayList(getCurrentData());
-                            ArrayList<Entry> powerlist = new ArrayList(getPowerData());
-                            ArrayList<String> timerecordlist = new ArrayList(getTimeRecordData());
+                            ArrayList<Entry> voltagelist = new ArrayList<>(getVoltageData());
+                            ArrayList<Entry> currentlist = new ArrayList<>(getCurrentData());
+                            ArrayList<Entry> powerlist = new ArrayList<>(getPowerData());
+                            ArrayList<String> timerecordlist = new ArrayList<>(getTimeRecordData());
 
                             for (int i = 0; i < timerecordlist.size(); i++) {
                                 bw.write(timerecordlist.get(i) + "," + voltagelist.get(i).getY() + "," + currentlist.get(i).getY() + "," + powerlist.get(i).getY() + "\n");
