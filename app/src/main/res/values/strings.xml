@@ -58,4 +58,5 @@
     <string name="plus">+</string>
     <string name="locationInfo">Since it is possible to calculate your location from known nearby Bluetooth devices, Android requires Location permissions to access Bluetooth devices directly. Since this app requires a Bluetooth connection, Location access is needed. Please click Okay to grant Location permission.</string>
     <string name="Info">Info</string>
+    <string name="title_table">Table</string>
 </resources>

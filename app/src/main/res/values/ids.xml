@@ -51,4 +51,9 @@
     <item name="button_import" type="id" />
     <item name="fragment_textdisplay" type="id" />
     <item name="fragment_bluetoothlist" type="id" />
+    <item name="record_time" type="id" />
+    <item name="record_voltage" type="id" />
+    <item name="record_current" type="id" />
+    <item name="record_power" type="id" />
+    <item name="List_record" type="id" />
 </resources>

@@ -56,6 +56,6 @@ public class Repository {
     }
 
     public void addTimeRecordData(LiveData<ArrayList<String>> timeRecordData) {
-        mPowerData.addSource(timeRecordData, mTimeRecordData::setValue);
+        mTimeRecordData.addSource(timeRecordData, mTimeRecordData::setValue);
     }
 }

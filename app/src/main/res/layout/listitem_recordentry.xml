@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@id/record_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        android:textSize="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@id/record_voltage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="000.0V"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/record_time" />
+
+    <TextView
+        android:id="@id/record_current"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="0.000A"
+        app:layout_constraintStart_toEndOf="@id/record_voltage"
+        app:layout_constraintTop_toBottomOf="@id/record_time" />
+
+    <TextView
+        android:id="@id/record_power"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="0000.0W"
+        app:layout_constraintStart_toEndOf="@id/record_current"
+        app:layout_constraintTop_toBottomOf="@id/record_time" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

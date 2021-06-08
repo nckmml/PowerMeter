@@ -36,6 +36,7 @@ import com.noid.powermeter.R;
 import com.noid.powermeter.ui.Repository;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,17 +163,30 @@ public class BLEService extends Service {
             String str4;
             String str5;
             String str6;
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+            symbols.setDecimalSeparator('.');
             DecimalFormat decimalFormat = new DecimalFormat("0.0");
+            decimalFormat.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat2 = new DecimalFormat("0.00");
+            decimalFormat2.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat3 = new DecimalFormat("0.000");
+            decimalFormat3.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat4 = new DecimalFormat("0.000000");
+            decimalFormat4.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat5 = new DecimalFormat("00.00");
+            decimalFormat5.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat6 = new DecimalFormat("000.0");
+            decimalFormat6.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat7 = new DecimalFormat("000.00");
+            decimalFormat7.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat8 = new DecimalFormat("000.000000");
+            decimalFormat8.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat9 = new DecimalFormat("0000.0");
+            decimalFormat9.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
+            decimalFormat10.setDecimalFormatSymbols(symbols);
             DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
+            decimalFormat11.setDecimalFormatSymbols(symbols);
             float power = 0.0f;
             if (bArr.length >= 3) {
                 if ((bArr[0] & 255) == 255 && bArr[2] == 1) {
@@ -196,11 +210,11 @@ public class BLEService extends Service {
                                 case 1:
                                     data.add("1");
                                     voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
-                                    data.add((decimalFormat6.format(voltage) + "V"));
+                                    data.add((decimalFormat6.format(voltage)));
                                     current = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
-                                    data.add((decimalFormat3.format(current) + "A"));
+                                    data.add((decimalFormat3.format(current)));
                                     power = (float) (((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 10.0d);
-                                    data.add((decimalFormat9.format(power) + "W"));
+                                    data.add((decimalFormat9.format(power)));
                                     String powerfactor = (decimalFormat2.format(((double) (((bArr[22] & 255) * 256) + (bArr[23] & 255))) / 1000.0d) + "PF");
                                     data.add(powerfactor);
                                     electricity = (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh");
@@ -250,13 +264,13 @@ public class BLEService extends Service {
                                     data.add("2");
                                     f0++;
                                     voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
-                                    data.add((decimalFormat6.format(voltage) + "V"));
+                                    data.add((decimalFormat6.format(voltage)));
                                     current = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
-                                    data.add(decimalFormat3.format(current) + "A");
+                                    data.add(decimalFormat3.format(current));
                                     power = voltage * current;
                                     String format3 = decimalFormat11.format(power);
                                     String substring3 = format3.substring(0, format3.length() + -5);
-                                    data.add((substring3 + "W"));
+                                    data.add((substring3));
                                     capacity = (decimalFormat7.format(((double) ((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256)) + (bArr[12] & 255))) / 100.0d) + "Ah");
                                     data.add(capacity);
                                     electricity = (decimalFormat7.format(((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d) + "kWh");
@@ -322,13 +336,13 @@ public class BLEService extends Service {
                                 case 3:
                                     data.add("3");
                                     voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d);
-                                    data.add((decimalFormat5.format(voltage) + "V"));
+                                    data.add((decimalFormat5.format(voltage)));
                                     float valueOf4 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 100.0d);
-                                    data.add(decimalFormat5.format(valueOf4) + "A");
+                                    data.add(decimalFormat5.format(valueOf4));
                                     power = voltage * valueOf4;
                                     String format6 = decimalFormat11.format(power);
                                     String substring6 = format6.substring(0, format6.length() + -4);
-                                    data.add((substring6 + "W"));
+                                    data.add((substring6));
                                     capacity = ReservedInt((((bArr[10] & 255) * 65536) + ((bArr[11] & 255) * 256) + (bArr[12] & 255)) + "") +
                                             "mAh";
                                     data.add(capacity);

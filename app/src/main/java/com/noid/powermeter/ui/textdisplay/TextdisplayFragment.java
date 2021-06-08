@@ -127,9 +127,9 @@ public class TextdisplayFragment extends Fragment {
                     text11.setText(getText(R.string.Backlight));
                     break;
             }
-            textVoltage.setText(newData.get(1));
-            textCurrent.setText(newData.get(2));
-            textPower.setText(newData.get(3));
+            textVoltage.setText(newData.get(1)+"V");
+            textCurrent.setText(newData.get(2)+"A");
+            textPower.setText(newData.get(3)+"W");
             textFactor.setText(newData.get(4));
             textCumulative.setText(newData.get(5));
             textcarbon.setText(newData.get(6));

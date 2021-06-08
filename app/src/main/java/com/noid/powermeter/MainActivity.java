@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         com.noid.powermeter.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_textdisplay, R.id.navigation_graph, R.id.navigation_bluetoothlist, R.id.navigation_export)
+                R.id.navigation_textdisplay, R.id.navigation_graph, R.id.navigation_table, R.id.navigation_bluetoothlist, R.id.navigation_export)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

@@ -12,6 +12,11 @@
         android:title="@string/title_graph" />
 
     <item
+        android:id="@+id/navigation_table"
+        android:icon="@drawable/ic_baseline_table_rows_24"
+        android:title="Table" />
+
+    <item
         android:id="@+id/navigation_bluetoothlist"
         android:icon="@drawable/ic_baseline_bluetooth_24"
         android:title="@string/title_bluetoothlist" />
