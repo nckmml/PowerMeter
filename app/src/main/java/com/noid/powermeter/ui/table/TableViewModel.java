@@ -9,10 +9,6 @@ import com.noid.powermeter.ui.Repository;
 import java.util.ArrayList;
 
 public class TableViewModel extends ViewModel {
-
-    public LiveData<ArrayList<String>> getData() {
-        return Repository.instance().getData();
-    }
     public LiveData<ArrayList<Entry>> getVoltageData() {
         return Repository.instance().getVoltageData();
     }

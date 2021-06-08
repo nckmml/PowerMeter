@@ -69,49 +69,32 @@ public class TableFragment extends Fragment {
             }
         };
         rv_records.setAdapter(adapter);
-        final Observer<ArrayList<String>> timeObserver = newData -> {};
-        mViewModel.getTimeRecordData().observe(getViewLifecycleOwner(), timeObserver);
-        if (mViewModel.getTimeRecordData().getValue() != null) {
-            Log.d("TableFragment", "getData.getValue != null");
-            records.add(getTimeRecordData());
-            records.add(getVoltageData());
-            records.add(getCurrentData());
-            records.add(getPowerData());
-        } else {
-            Log.d("TableFragment", "getData.getValue = null");
-            records.add(new ArrayList());
-            records.add(new ArrayList());
-            records.add(new ArrayList());
-            records.add(new ArrayList());
-        }
-        if (records.size() != 0)
-            Log.d("TableFragment", "record size "+records.get(0).size());
-        final Observer<ArrayList<String>> dataObserver = newData -> {
+        records.add(new ArrayList());
+        records.add(new ArrayList());
+        records.add(new ArrayList());
+        records.add(new ArrayList());
+        final Observer<ArrayList<String>> timeRecordObserver = newData -> {
+            records.set(0, newData);
+        };
+        mViewModel.getTimeRecordData().observe(getViewLifecycleOwner(), timeRecordObserver);
+        final Observer<ArrayList<Entry>> voltageObserver = newData -> {
+            records.set(1, newData);
+        };
+        mViewModel.getVoltageData().observe(getViewLifecycleOwner(), voltageObserver);
+        final Observer<ArrayList<Entry>> currentObserver = newData -> {
+            records.set(2, newData);
+        };
+        mViewModel.getCurrentData().observe(getViewLifecycleOwner(), currentObserver);
+        final Observer<ArrayList<Entry>> powerObserver = newData -> {
+            records.set(3, newData);
             adapter.notifyDataSetChanged();
             rv_records.scrollToPosition(records.get(0).size()-1);
         };
-        final Observer<ArrayList<Entry>> entryObserver = entries -> {};
-        mViewModel.getVoltageData().observe(getViewLifecycleOwner(), entryObserver);
-        mViewModel.getCurrentData().observe(getViewLifecycleOwner(), entryObserver);
-        mViewModel.getPowerData().observe(getViewLifecycleOwner(), entryObserver);
-        mViewModel.getData().observe(getViewLifecycleOwner(), dataObserver);
+        mViewModel.getPowerData().observe(getViewLifecycleOwner(), powerObserver);
+
+        if (records.size() != 0)
+            Log.d("TableFragment", "record size "+records.get(0).size());
         return root;
-    }
-
-    private ArrayList<Entry> getVoltageData(){
-        return mViewModel.getVoltageData().getValue();
-    }
-
-    private ArrayList<Entry> getCurrentData(){
-        return mViewModel.getCurrentData().getValue();
-    }
-
-    private ArrayList<Entry> getPowerData(){
-        return mViewModel.getPowerData().getValue();
-    }
-
-    private ArrayList<String> getTimeRecordData(){
-        return mViewModel.getTimeRecordData().getValue();
     }
 
     public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
