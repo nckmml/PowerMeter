@@ -1,9 +1,6 @@
 package com.noid.powermeter.Model;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
 
 public class UUIDs {
     public static final String UUID_NOTIFY = "0000ffe1-0000-1000-8000-00805f9b34fb";
@@ -31,10 +28,6 @@ public class UUIDs {
             sb.append(hexString);
         }
         return sb.toString();
-    }
-
-    public static String getTime() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(System.currentTimeMillis()));
     }
 
 }

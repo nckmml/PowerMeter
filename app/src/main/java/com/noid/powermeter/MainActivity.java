@@ -49,23 +49,45 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private MainActivityViewModel mainActivityViewModel;
-    private int adu() {
+    private boolean mBound = false;
+    private BLEService mService;
+    private static final int COMMAND_RESET_A = 1;
+    private static final int COMMAND_RESET_B = 2;
+    private static final int COMMAND_RESET_C = 3;
+    private static final int COMMAND_SET = 49;
+    private static final int COMMAND_OK = 50;
+    private static final int COMMAND_PLUS = 51;
+    private static final int COMMAND_MINUS = 52;
+    private static final int DEVICE_DC = 2;
+    private static final int DEVICE_USB = 3;
+
+    private int getDeviceType() {
         if (mainActivityViewModel.getData().getValue() != null)
             return Integer.parseInt(mainActivityViewModel.getData().getValue().get(0));
         return 0;
     }
-    private boolean mBound = false;
-    public ActivityResultLauncher<Intent> bluetoothActivityResultLauncher = registerForActivityResult(
+
+    private ArrayList<Entry> getVoltageData(){
+        return mainActivityViewModel.getVoltageData().getValue();
+    }
+
+    private ArrayList<Entry> getCurrentData(){
+        return mainActivityViewModel.getCurrentData().getValue();
+    }
+
+    private ArrayList<Entry> getPowerData(){
+        return mainActivityViewModel.getPowerData().getValue();
+    }
+
+    private ArrayList<String> getTimeRecordData(){
+        return mainActivityViewModel.getTimeRecordData().getValue();
+    }
+
+    private final ActivityResultLauncher<Intent> bluetoothActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    initView();
-                } else {
-                    initView();
-                }
-            });
-    private BLEService mService;
-    public ActivityResultLauncher<Intent> openActivityResultLauncher = registerForActivityResult(
+            result -> initView());
+
+    private final ActivityResultLauncher<Intent> openActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -78,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                                          getContentResolver().openInputStream(data.getData());
                                  BufferedReader reader = new BufferedReader(
                                          new InputStreamReader(Objects.requireNonNull(inputStream)))) {
-
                                 String line;
                                 while ((line = reader.readLine()) != null) {
                                     if (!line.equals("Time,Voltage,Current,Power")) {
@@ -97,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-    public ActivityResultLauncher<Intent> saveActivityResultLauncher = registerForActivityResult(
+
+    private final ActivityResultLauncher<Intent> saveActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -114,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
                             ArrayList<Entry> currentlist = new ArrayList<>(getCurrentData());
                             ArrayList<Entry> powerlist = new ArrayList<>(getPowerData());
                             ArrayList<String> timerecordlist = new ArrayList<>(getTimeRecordData());
-
                             for (int i = 0; i < timerecordlist.size(); i++) {
                                 bw.write(timerecordlist.get(i) + "," + voltagelist.get(i).getY() + "," + currentlist.get(i).getY() + "," + powerlist.get(i).getY() + "\n");
                             }
@@ -127,8 +148,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-    private final ServiceConnection connection = new ServiceConnection() {
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    if (BluetoothAdapter.getDefaultAdapter().isEnabled())
+                        initView();
+                    else
+                        initBluetooth();
+                } else {
+                    initView();
+                }
+            });
+
+    private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
@@ -143,17 +176,6 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    if (BluetoothAdapter.getDefaultAdapter().isEnabled())
-                        initView();
-                    else
-                        initBluetooth();
-                } else {
-                    initView();
-                }
-            });
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -170,22 +192,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private ArrayList<Entry> getVoltageData(){
-        return mainActivityViewModel.getVoltageData().getValue();
-    }
-
-    private ArrayList<Entry> getCurrentData(){
-        return mainActivityViewModel.getCurrentData().getValue();
-    }
-
-    private ArrayList<Entry> getPowerData(){
-        return mainActivityViewModel.getPowerData().getValue();
-    }
-
-    private ArrayList<String> getTimeRecordData(){
-        return mainActivityViewModel.getTimeRecordData().getValue();
     }
 
     private void exit() {
@@ -219,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
-    public void initLocationPermission() {
+    private void initLocationPermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck == PackageManager.PERMISSION_DENIED) {
             DialogLocation(getString(R.string.locationInfo));
@@ -227,11 +233,10 @@ public class MainActivity extends AppCompatActivity {
             initBluetooth();
     }
 
-    public void initBluetooth() {
+    private void initBluetooth() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            // Device doesn't support Bluetooth
-            System.exit(1);
+            initView();
         }
         assert bluetoothAdapter != null;
         if (!bluetoothAdapter.isEnabled()) {
@@ -240,10 +245,10 @@ public class MainActivity extends AppCompatActivity {
             initView();
     }
 
-    private void createFile(String mimeType, String fileName) {
+    private void createCSV(String fileName) {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(mimeType);
+        intent.setType("text/csv");
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
         saveActivityResultLauncher.launch(intent);
     }
@@ -255,94 +260,86 @@ public class MainActivity extends AppCompatActivity {
         openActivityResultLauncher.launch(intent);
     }
 
-    public void exportExcel(View view) {
-        /*
-        this.file = new File(getSDPath() + "/Etest");
-        makeDir(this.file);
-        ExcelUtils.initExcel(this.file.toString() + "/Etest.xls", new String[]{"时间", "电压", "电流", "功率"});
-        this.fileName = getSDPath() + "/Etest/Etest.xls";
-        ExcelUtils.writeObjListToExcel(getRecordData(), this.fileName, this);
-         */
+    public void exportData(View view) {
         if (BLEService.mBluetoothGatt != null) {
-            createFile("text/csv", BLEService.mBluetoothGatt.getDevice().getName() + "_" + java.time.LocalDateTime.now() + ".csv");
+            createCSV(BLEService.mBluetoothGatt.getDevice().getName() + "_" + java.time.LocalDateTime.now() + ".csv");
         } else
-            createFile("text/csv", "PowerRecording_" + java.time.LocalDateTime.now() + ".csv");
+            createCSV("PowerRecording_" + java.time.LocalDateTime.now() + ".csv");
     }
 
-    private void DialogClear(String str, final int i) {
+    private void DialogClear(String message, final int command) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.Warning));
-        builder.setMessage(str);
+        builder.setMessage(message);
         builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
-            private int anonVar;
+            private int command;
 
             public void onClick(DialogInterface dialogInterface, int i) {
-                MainActivity.this.send(adu(), anonVar, 0, 0, 0);
+                MainActivity.this.send(command);
             }
 
-            private DialogInterface.OnClickListener init(int var) {
-                anonVar = var;
+            private DialogInterface.OnClickListener init(int command) {
+                this.command = command;
                 return this;
             }
-        }.init(i)).setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> {
+        }.init(command)).setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> {
         }).show();
     }
 
-    private void DialogLocation(String str) {
+    private void DialogLocation(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.Info));
-        builder.setMessage(str);
+        builder.setMessage(message);
         builder
                 .setPositiveButton(getString(R.string.confirm), (dialogInterface, i12) -> requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION))
                 .setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> initView()).show();
     }
 
-    private void send(int i, int i2, int i3, int i4, int i5) {
+    private void send(int command) {
         byte[] bArr = new byte[10];
         bArr[0] = -1;
         bArr[1] = 85;
         bArr[2] = 17;
-        bArr[3] = (byte) i;
-        bArr[4] = (byte) i2;
-        bArr[6] = (byte) i3;
-        bArr[7] = (byte) i4;
-        bArr[8] = (byte) i5;
-        bArr[9] = (byte) ((((((((bArr[2] & 255) + (bArr[3] & 255)) + (bArr[4] & 255)) + (bArr[5] & 255)) + (bArr[6] & 255)) + (bArr[7] & 255)) + (bArr[8] & 255)) ^ 68);
-        Log.i("校验码", ((bArr[2] & 255) + (bArr[3] & 255) + (bArr[4] & 255) + (bArr[5] & 255) + (bArr[6] & 255) + (bArr[7] & 255) + (bArr[8] & 255)) + "");
+        bArr[3] = (byte) getDeviceType();
+        bArr[4] = (byte) command;
+        bArr[9] = (byte) ((17 + getDeviceType() + command) ^ 68);
+        Log.d("barr" , String.valueOf(bArr[5] & 255));
         BLEService.send(bArr);
     }
 
     public void reset1(View view) {
-        DialogClear(getString(R.string.Clear1), 2);
-    }
-
-    public void reset2(View view) {
-        if (adu() != 2) {
-            DialogClear(getString(R.string.Clear2), 3);
-        }
-    }
-
-    public void reset3(View view) {
-        if (adu() != 3) {
-            DialogClear(getString(R.string.Clear), 1);
+        if (getDeviceType() != DEVICE_USB) {
+            DialogClear(getString(R.string.Clear), COMMAND_RESET_A);
         } else {
             DialogClear(getString(R.string.Clear21), 1);
         }
     }
 
+    public void reset2(View view) {
+        DialogClear(getString(R.string.Clear1), COMMAND_RESET_B);
+    }
+
+    public void reset3(View view) {
+        if (getDeviceType() != DEVICE_DC) {
+            DialogClear(getString(R.string.Clear2), COMMAND_RESET_C);
+        }
+    }
+
     public void sendSet(View view) {
-        send(adu(), 49, 0, 0, 0);
-    }
-
-    public void sendMinus(View view) {
-        send(adu(), 52, 0, 0, 0);
-    }
-
-    public void sendPlus(View view) {
-        send(adu(), 51, 0, 0, 0);
+        send(COMMAND_SET);
     }
 
     public void sendOk(View view) {
-        send(adu(), 50, 0, 0, 0);
+        send(COMMAND_OK);
     }
+
+    public void sendPlus(View view) {
+        send(COMMAND_PLUS);
+    }
+
+    public void sendMinus(View view) {
+        send(COMMAND_MINUS);
+    }
+
+
 }

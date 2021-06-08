@@ -107,7 +107,7 @@ public class GraphFragment extends Fragment {
         return root;
     }
 
-    public void redrawChart(){
+    private void redrawChart(){
         chart = binding.chart1;
         LineData data = new LineData(set1, set2, set3);
         chart.setData(data);

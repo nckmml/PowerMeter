@@ -22,32 +22,28 @@ import java.util.ArrayList;
 
 public class TextdisplayFragment extends Fragment {
 
-    public TextView textVoltage;
-    public TextView textCurrent;
-    public TextView textPower;
-    public TextView textFactor;
-    public TextView textCumulative;
-    public Chip chipAc;
-    public Chip chipDc;
-    public Chip chipUsb;
-    public TextView textView2;
-    public TextView textName;
-    public TextView text5;
-    public TextView text6;
-    public TextView text7;
-    public TextView text8;
-    public TextView text9;
-    public TextView text11;
-    public TextView textAC;
-    public TextView textBill;
-    public TextView textcarbon;
-    public TextView textInternal;
-    public TextView textElectricity;
-    public TextView textBLV;
-    public Button button;
-    public Button button2;
-    public Button button3;
-    public ConstraintLayout layoutBL;
+    private TextView textVoltage;
+    private TextView textCurrent;
+    private TextView textPower;
+    private TextView textFactor;
+    private TextView textCumulative;
+    private Chip chipAc;
+    private Chip chipDc;
+    private Chip chipUsb;
+    private TextView text5;
+    private TextView text7;
+    private TextView text8;
+    private TextView text9;
+    private TextView text11;
+    private TextView textAC;
+    private TextView textBill;
+    private TextView textcarbon;
+    private TextView textInternal;
+    private TextView textElectricity;
+    private TextView textBLV;
+    private Button button;
+    private Button button2;
+    private ConstraintLayout layoutBL;
     private FragmentTextdisplayBinding binding;
     private int adu;
 
@@ -64,10 +60,8 @@ public class TextdisplayFragment extends Fragment {
         chipAc = binding.chipHeaderAc;
         chipDc = binding.chipHeaderDc;
         chipUsb = binding.chipHeaderUSB;
-        textView2 = binding.textView2;
-        textName = binding.textHeaderName;
+        TextView textName = binding.textHeaderName;
         text5 = binding.text5;
-        text6 = binding.text6;
         text7 = binding.text7;
         text8 = binding.text8;
         text9 = binding.text9;
@@ -80,7 +74,6 @@ public class TextdisplayFragment extends Fragment {
         textBLV = binding.textBLV;
         button = binding.button;
         button2 = binding.button2;
-        button3 = binding.button3;
         layoutBL = binding.layoutBL;
         final Observer<ArrayList<String >> dataObserver = newData -> {
             adu = Integer.parseInt(newData.get(0));

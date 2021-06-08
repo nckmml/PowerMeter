@@ -39,7 +39,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -47,15 +46,15 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 public class BLEService extends Service {
-    public static final String CONTENT_DEVICE = "CONTENT_DEVICE";
-    public static final String NOTIFICATION_CHANNEL_ID = "10001";
-    public static final String ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE";
-    public static final String ACTION_STOP_NOTIFICATION_SERVICE = "ACTION_STOP_NOTIFICATION_SERVICE";
-    private final static String default_notification_channel_id = "default";
+    private static final String NOTIFICATION_CHANNEL_ID = "10001";
+    private static final String default_notification_channel_id = "default";
     private static final String TAG_NOTIFICATION_SERVICE = "NOTIFICATION_SERVICE";
-    public static boolean CONTENT_STATUS = false;
-    public static String bluetooth_device_address = "";
-    public static BluetoothGatt mBluetoothGatt;
+    private static final int DEVICE_AC = 1;
+    private static final int DEVICE_DC = 2;
+    private static final int DEVICE_USB = 3;
+
+    private static boolean CONTENT_STATUS = false;
+    private static String bluetooth_device_address = "";
     private static BluetoothAdapter mAdapter;
     private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private final MyBinder binder = new MyBinder();
@@ -73,7 +72,14 @@ public class BLEService extends Service {
     private ArrayList<String> TimeRecordData = new ArrayList<>();
     private final ArrayList<BluetoothDevice> BluetoothDevices = new ArrayList<>();
 
+    private byte[] mValue;
+    private int recordedSeconds = 0;
     private int entryCount = 0;
+    private SharedPreferences mSharedPreferences;
+
+    public static final String ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE";
+    public static final String ACTION_STOP_NOTIFICATION_SERVICE = "ACTION_STOP_NOTIFICATION_SERVICE";
+    public static BluetoothGatt mBluetoothGatt;
 
     public LiveData<ArrayList<String>> getData(){
         return mData;
@@ -94,7 +100,7 @@ public class BLEService extends Service {
         return mBluetoothDevices;
     }
 
-    public ScanCallback mLeScanCallback = new ScanCallback() {
+    private final ScanCallback mLeScanCallback = new ScanCallback() {
 
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -109,22 +115,17 @@ public class BLEService extends Service {
             }
         }
     };
-    private byte[] mValue;
-    private int f0 = 0;
-    private SharedPreferences mSharedPreferences;
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-        /* class com.tang.etest.e_test.Model.BLEService.AnonymousClass2 */
 
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+
+        @Override
         public void onConnectionStateChange(BluetoothGatt bluetoothGatt, int i, int i2) {
-            Log.i("onConnectionStateChange", "Connection" + i);
             if (i2 == BluetoothProfile.STATE_DISCONNECTED) {
                 BLEService.this.scan(true);
                 BLEService.CONTENT_STATUS = false;
-                BLEService.this.broadcastConnect(BLEService.CONTENT_DEVICE, false);
             } else if (i2 == BluetoothProfile.STATE_CONNECTED) {
                 BLEService.mBluetoothGatt.discoverServices();
                 BLEService.CONTENT_STATUS = true;
-                BLEService.this.broadcastConnect(BLEService.CONTENT_DEVICE, true);
                 SharedPreferences.Editor edit = BLEService.this.mSharedPreferences.edit();
                 BLEService.bluetooth_device_address = bluetoothGatt.getDevice().getAddress();
                 edit.putString("DEVICE_ADDRESS", BLEService.bluetooth_device_address);
@@ -132,8 +133,8 @@ public class BLEService extends Service {
             }
         }
 
+        @Override
         public void onServicesDiscovered(BluetoothGatt bluetoothGatt, int i) {
-            Log.i("onServicesDiscovered", "Service Callback " + i);
             for (BluetoothGattService bluetoothGattService : bluetoothGatt.getServices()) {
                 for (final BluetoothGattCharacteristic bluetoothGattCharacteristic : bluetoothGattService.getCharacteristics()) {
                     if (bluetoothGattCharacteristic.getUuid().equals(UUID.fromString(UUIDs.UUID_NOTIFY))) {
@@ -150,51 +151,17 @@ public class BLEService extends Service {
             new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(BLEService.this.getApplicationContext(), "Connected!", Toast.LENGTH_SHORT).show());
         }
 
+        @Override
         public void onCharacteristicRead(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic, int i) {
-            Log.i("onCharacteristicRead", "Read " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
         }
 
+        @Override
         public void onCharacteristicWrite(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic, int i) {
-            Log.i("写入", UUIDs.bytesToHexString(bluetoothGattCharacteristic.getValue()));
         }
 
+        @Override
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             byte[] bArr = bluetoothGattCharacteristic.getValue();
-            float voltage;
-            float current;
-            float valueOf = 0.0f;
-            float valueOf2 = 0.0f;
-            String str;
-            String str2;
-            String str3;
-            String str4;
-            String str5;
-            String str6;
-            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-            symbols.setDecimalSeparator('.');
-            DecimalFormat decimalFormat = new DecimalFormat("0.0");
-            decimalFormat.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat2 = new DecimalFormat("0.00");
-            decimalFormat2.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat3 = new DecimalFormat("0.000");
-            decimalFormat3.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat4 = new DecimalFormat("0.000000");
-            decimalFormat4.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat5 = new DecimalFormat("00.00");
-            decimalFormat5.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat6 = new DecimalFormat("000.0");
-            decimalFormat6.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat7 = new DecimalFormat("000.00");
-            decimalFormat7.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat8 = new DecimalFormat("000.000000");
-            decimalFormat8.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat9 = new DecimalFormat("0000.0");
-            decimalFormat9.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
-            decimalFormat10.setDecimalFormatSymbols(symbols);
-            DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
-            decimalFormat11.setDecimalFormatSymbols(symbols);
-            float power = 0.0f;
             if (bArr.length >= 3) {
                 if ((bArr[0] & 255) == 255 && bArr[2] == 1) {
                     mValue = bArr;
@@ -203,6 +170,7 @@ public class BLEService extends Service {
                     mValue = UUIDs.concat(mValue, bArr);
                     if (mValue != null) {
                         if (mValue.length == 36) {
+                            bArr = mValue;
                             ArrayList<String> data = new ArrayList<>();
                             StringBuilder dataBuilder = new StringBuilder();
                             String capacity;
@@ -212,10 +180,40 @@ public class BLEService extends Service {
                             String time;
                             String temperature;
                             String eprice;
-                            bArr = mValue;
+                            float voltage = 0.0f;
+                            float current = 0.0f;
+                            float power = 0.0f;
+                            int tempRawC;
+                            String timeHours;
+                            String timeMinutes;
+                            String timeSeconds;
+                            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                            symbols.setDecimalSeparator('.');
+                            DecimalFormat decimalFormat = new DecimalFormat("0.0");
+                            decimalFormat.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat2 = new DecimalFormat("0.00");
+                            decimalFormat2.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat3 = new DecimalFormat("0.000");
+                            decimalFormat3.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat4 = new DecimalFormat("0.000000");
+                            decimalFormat4.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat5 = new DecimalFormat("00.00");
+                            decimalFormat5.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat6 = new DecimalFormat("000.0");
+                            decimalFormat6.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat7 = new DecimalFormat("000.00");
+                            decimalFormat7.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat8 = new DecimalFormat("000.000000");
+                            decimalFormat8.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat9 = new DecimalFormat("0000.0");
+                            decimalFormat9.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat10 = new DecimalFormat("0000.00");
+                            decimalFormat10.setDecimalFormatSymbols(symbols);
+                            DecimalFormat decimalFormat11 = new DecimalFormat("0000.000000");
+                            decimalFormat11.setDecimalFormatSymbols(symbols);
+                            data.add(String.valueOf(bArr[3]));
                             switch (bArr[3]) {
-                                case 1:
-                                    data.add("1");
+                                case DEVICE_AC:
                                     voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
                                     data.add((decimalFormat6.format(voltage)));
                                     current = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
@@ -234,8 +232,8 @@ public class BLEService extends Service {
                                     data.add(echarges);
                                     String acfreq = ((((double) (((bArr[20] & 255) * 256) + (bArr[21] & 255))) / 10.0d) + "Hz");
                                     data.add(acfreq);
-                                    int i = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
-                                    temperature = (i + "℃/" + decimalFormat.format((((double) i) * 1.8d) + 32.0d) + "℉");
+                                    tempRawC = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
+                                    temperature = (tempRawC + "℃/" + decimalFormat.format((((double) tempRawC) * 1.8d) + 32.0d) + "℉");
                                     data.add(temperature);
                                     eprice = (decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d));
                                     data.add(eprice);
@@ -267,9 +265,8 @@ public class BLEService extends Service {
                                     dataBuilder.append("Elec. price setting: ");
                                     dataBuilder.append(eprice);
                                     break;
-                                case 2:
-                                    data.add("2");
-                                    f0++;
+                                case DEVICE_DC:
+                                    recordedSeconds++;
                                     voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 10.0d);
                                     data.add((decimalFormat6.format(voltage)));
                                     current = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 1000.0d);
@@ -288,27 +285,27 @@ public class BLEService extends Service {
                                     String format5 = decimalFormat4.format((((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d) * (((double) (((((bArr[13] & 255) * 16777216) + ((bArr[14] & 255) * 65536)) + ((bArr[15] & 255) * 256)) + (bArr[16] & 255))) / 100.0d));
                                     echarges = format5.substring(0, format5.length() - 4);
                                     data.add(echarges);
-                                    if (f0 / 3600 < 10) {
-                                        str = "00" + (f0 / 3600);
-                                    } else if (f0 / 3600 < 100) {
-                                        str = "0" + (f0 / 3600);
+                                    if (recordedSeconds / 3600 < 10) {
+                                        timeHours = "00" + (recordedSeconds / 3600);
+                                    } else if (recordedSeconds / 3600 < 100) {
+                                        timeHours = "0" + (recordedSeconds / 3600);
                                     } else {
-                                        str = "" + (f0 / 3600);
+                                        timeHours = "" + (recordedSeconds / 3600);
                                     }
-                                    if (f0 / 60 < 10) {
-                                        str2 = "0" + (f0 / 60);
+                                    if (recordedSeconds / 60 < 10) {
+                                        timeMinutes = "0" + (recordedSeconds / 60);
                                     } else {
-                                        str2 = "" + (0 / 60);
+                                        timeMinutes = "" + (0 / 60);
                                     }
-                                    if (f0 % 60 < 10) {
-                                        str3 = "0" + (f0 % 60);
+                                    if (recordedSeconds % 60 < 10) {
+                                        timeSeconds = "0" + (recordedSeconds % 60);
                                     } else {
-                                        str3 = "" + (f0 % 60);
+                                        timeSeconds = "" + (recordedSeconds % 60);
                                     }
-                                    time = (str + ":" + str2 + ":" + str3);
+                                    time = (timeHours + ":" + timeMinutes + ":" + timeSeconds);
                                     data.add(time);
-                                    int i2 = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
-                                    temperature = (i2 + "℃/" + decimalFormat.format((((double) i2) * 1.8d) + 32.0d) + "℉");
+                                    tempRawC = ((bArr[24] & 255) * 256) + (bArr[25] & 255);
+                                    temperature = (tempRawC + "℃/" + decimalFormat.format((((double) tempRawC) * 1.8d) + 32.0d) + "℉");
                                     data.add(temperature);
                                     eprice = decimalFormat2.format(((double) ((((bArr[17] & 255) * 65536) + ((bArr[18] & 255) * 256)) + (bArr[19] & 255))) / 100.0d);
                                     data.add(eprice);
@@ -340,8 +337,7 @@ public class BLEService extends Service {
                                     dataBuilder.append("Elec. price setting: ");
                                     dataBuilder.append(eprice);
                                     break;
-                                case 3:
-                                    data.add("3");
+                                case DEVICE_USB:
                                     voltage = (float) (((double) ((((bArr[4] & 255) * 65536) + ((bArr[5] & 255) * 256)) + (bArr[6] & 255))) / 100.0d);
                                     data.add((decimalFormat5.format(voltage)));
                                     float valueOf4 = (float) (((double) ((((bArr[7] & 255) * 65536) + ((bArr[8] & 255) * 256)) + (bArr[9] & 255))) / 100.0d);
@@ -360,26 +356,26 @@ public class BLEService extends Service {
                                     String dminus = (decimalFormat2.format(((double) (((bArr[17] & 255) * 256) + (bArr[18] & 255))) / 100.0d) + "V");
                                     data.add(dminus);
                                     if (((bArr[23] & 255) * 256) + (bArr[24] & 255) < 10) {
-                                        str4 = "00" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
+                                        timeHours = "00" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
                                     } else if (((bArr[23] & 255) * 256) + (bArr[24] & 255) < 100) {
-                                        str4 = "0" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
+                                        timeHours = "0" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
                                     } else {
-                                        str4 = "" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
+                                        timeHours = "" + (((bArr[23] & 255) * 256) + (bArr[24] & 255));
                                     }
                                     if (bArr[25] < 10) {
-                                        str5 = "0" + ((int) bArr[25]);
+                                        timeMinutes = "0" + ((int) bArr[25]);
                                     } else {
-                                        str5 = "" + ((int) bArr[25]);
+                                        timeMinutes = "" + ((int) bArr[25]);
                                     }
                                     if (bArr[26] < 10) {
-                                        str6 = "0" + ((int) bArr[26]);
+                                        timeSeconds = "0" + ((int) bArr[26]);
                                     } else {
-                                        str6 = "" + ((int) bArr[26]);
+                                        timeSeconds = "" + ((int) bArr[26]);
                                     }
-                                    time = (str4 + ":" + str5 + ":" + str6);
+                                    time = (timeHours + ":" + timeMinutes + ":" + timeSeconds);
                                     data.add(time);
-                                    int i3 = ((bArr[21] & 255) * 256) + (bArr[22] & 255);
-                                    temperature = (i3 + "℃/" + decimalFormat.format((((double) i3) * 1.8d) + 32.0d) + "℉");
+                                    tempRawC = ((bArr[21] & 255) * 256) + (bArr[22] & 255);
+                                    temperature = (tempRawC + "℃/" + decimalFormat.format((((double) tempRawC) * 1.8d) + 32.0d) + "℉");
                                     data.add(temperature);
                                     current = valueOf4;
                                     if (bArr[27] == 0) {
@@ -407,10 +403,6 @@ public class BLEService extends Service {
                                     dataBuilder.append(time).append("\n");
                                     dataBuilder.append("Internal Temperature: ");
                                     dataBuilder.append(temperature);
-                                    break;
-                                default:
-                                    voltage = valueOf;
-                                    current = valueOf2;
                                     break;
                             }
                             updateNotification(dataBuilder.toString());
@@ -465,7 +457,6 @@ public class BLEService extends Service {
                 tempcount++;
             }
         }
-
         VoltageData = new ArrayList<>(templist0);
         CurrentData = new ArrayList<>(templist1);
         PowerData = new ArrayList<>(templist2);
@@ -477,6 +468,7 @@ public class BLEService extends Service {
         mTimeRecordData.postValue(TimeRecordData);
     }
 
+    @Override
     public void onCreate() {
         super.onCreate();
         initBluetooth();
@@ -490,10 +482,10 @@ public class BLEService extends Service {
         bluetooth_device_address = this.mSharedPreferences.getString("DEVICE_ADDRESS", null);
     }
 
+    @Override
     public int onStartCommand(Intent intent, int i, int i2) {
         if (intent != null) {
             String action = intent.getAction();
-
             switch (action) {
                 case ACTION_START_NOTIFICATION_SERVICE:
                     startForegroundService();
@@ -521,9 +513,7 @@ public class BLEService extends Service {
     }
 
     private void updateNotification(String text) {
-
         Notification notification = getNotification(text);
-
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(1, notification);
     }
@@ -555,23 +545,26 @@ public class BLEService extends Service {
         stopSelf();
     }
 
+    @Override
     public void onDestroy() {
         super.onDestroy();
         Log.i("test", "ServiceDestroy");
     }
 
     @Nullable
+    @Override
     public IBinder onBind(Intent intent) {
         Log.i("test", "Bind");
         return this.binder;
     }
 
+    @Override
     public boolean onUnbind(Intent intent) {
         Log.i("test", "Unbind");
         return super.onUnbind(intent);
     }
 
-    public void initBluetooth() {
+    private void initBluetooth() {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
@@ -588,16 +581,16 @@ public class BLEService extends Service {
         }
     }
 
-    public void connect(String str) {
-        Log.i("Connecting ", str);
+    public void connect(String addr) {
+        Log.i("Connecting ", addr);
         Context applicationContext = getApplicationContext();
-        Toast.makeText(applicationContext, "Connecting: " + str, Toast.LENGTH_SHORT).show();
+        Toast.makeText(applicationContext, "Connecting: " + addr, Toast.LENGTH_SHORT).show();
         if (mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();
             mBluetoothGatt = null;
         }
-        mBluetoothGatt = mAdapter.getRemoteDevice(str).connectGatt(this, false, this.mGattCallback);
+        mBluetoothGatt = mAdapter.getRemoteDevice(addr).connectGatt(this, false, this.mGattCallback);
     }
 
     public void setCharacteristicNotification(BluetoothGattCharacteristic bluetoothGattCharacteristic, boolean z) {
@@ -616,12 +609,6 @@ public class BLEService extends Service {
                 }
             }
         }
-    }
-
-    public void broadcastConnect(String str, boolean z) {
-        Intent intent = new Intent(str);
-        intent.putExtra(str, z);
-        sendBroadcast(intent);
     }
 
     private String ReservedInt(String str) {

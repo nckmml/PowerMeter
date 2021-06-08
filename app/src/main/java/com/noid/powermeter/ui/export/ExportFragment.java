@@ -26,7 +26,7 @@ public class ExportFragment extends Fragment {
 
         final TextView textView = binding.textExport;
         final Button exportButton = binding.buttonExport;
-        exportViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+        exportViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         exportViewModel.getData().observe(getViewLifecycleOwner(), s -> exportButton.setEnabled(true));
         return root;
     }

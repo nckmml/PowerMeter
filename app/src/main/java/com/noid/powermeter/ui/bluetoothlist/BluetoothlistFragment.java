@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,33 +35,31 @@ public class BluetoothlistFragment extends Fragment {
     private FragmentBluetoothlistBinding binding;
     private RecyclerViewAdapter adapter;
     private BLEService mBleService;
-    private BluetoothlistViewModel bluetoothlistViewModel;
     private final ServiceConnection conn = new ServiceConnection() {
-        /* class com.tang.etest.e_test.Model.ScanActivity.AnonymousClass3 */
-
+        @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BluetoothlistFragment.this.mBleService = ((BLEService.MyBinder) iBinder).getService();
-            Log.i("Kathy", "ActivityA - onServiceConnected");
             BluetoothlistFragment.this.mBleService.scan(true);
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.i("Kathy", "ActivityA - onServiceDisconnected");
         }
     };
-    private RecyclerView lv_device;
+    private RecyclerView rv_device;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        bluetoothlistViewModel = new BluetoothlistViewModel();
+        BluetoothlistViewModel bluetoothlistViewModel = new BluetoothlistViewModel();
         binding = FragmentBluetoothlistBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        this.lv_device = binding.ListDevice;
-        this.lv_device.setAdapter(new RecyclerViewAdapter(devices));
+        this.rv_device = binding.ListDevice;
+        this.rv_device.setAdapter(new RecyclerViewAdapter(devices));
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
-        this.lv_device.setLayoutManager(mLayoutManager);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(this.lv_device.getContext(), mLayoutManager.getOrientation());
-        this.lv_device.addItemDecoration(mDividerItemDecoration);
+        this.rv_device.setLayoutManager(mLayoutManager);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(this.rv_device.getContext(), mLayoutManager.getOrientation());
+        this.rv_device.addItemDecoration(mDividerItemDecoration);
         scanDevice();
         requireActivity().bindService(new Intent(getActivity(), BLEService.class), this.conn, Context.BIND_AUTO_CREATE);
         final Observer<ArrayList<BluetoothDevice>> bluetoothObserver = newData -> {
@@ -79,7 +76,7 @@ public class BluetoothlistFragment extends Fragment {
 
                 @Override
                 public void onClick(View view) {
-                    int i = lv_device.getChildLayoutPosition(view);
+                    int i = rv_device.getChildLayoutPosition(view);
                     BluetoothDevice bluetoothDevice = BluetoothlistFragment.this.devices.get(i);
                     if (bluetoothDevice != null) {
                         BluetoothlistFragment.this.mBleService.scan(false);
@@ -117,7 +114,7 @@ public class BluetoothlistFragment extends Fragment {
                 return BluetoothlistFragment.this.devices.size();
             }
         };
-        this.lv_device.setAdapter(this.adapter);
+        this.rv_device.setAdapter(this.adapter);
     }
 
     @Override
@@ -145,6 +142,7 @@ public class BluetoothlistFragment extends Fragment {
             );
         }
 
+        @Override
         public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
         }
 

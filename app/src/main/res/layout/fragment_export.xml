@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:onClick="exportExcel"
+        android:onClick="exportData"
         android:enabled="false"
         android:text="@string/button_export"
         app:layout_constraintStart_toStartOf="parent"

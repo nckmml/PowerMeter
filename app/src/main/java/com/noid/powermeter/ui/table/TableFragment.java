@@ -69,10 +69,9 @@ public class TableFragment extends Fragment {
             }
         };
         rv_records.setAdapter(adapter);
-        records.add(new ArrayList<>());
-        records.add(new ArrayList<>());
-        records.add(new ArrayList<>());
-        records.add(new ArrayList<>());
+        for (int i = 0; i < 4; i++){
+            records.add(new ArrayList());
+        }
         final Observer<ArrayList<String>> timeRecordObserver = newData -> {
             records.set(0, newData);
         };
@@ -114,6 +113,7 @@ public class TableFragment extends Fragment {
             );
         }
 
+        @Override
         public void onBindViewHolder(@NotNull ViewHolder holder, int position) {
         }
 
