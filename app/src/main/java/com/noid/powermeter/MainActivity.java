@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     initView();
+                } else {
+                    initView();
                 }
             });
     private BLEService mService;
@@ -146,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                     else
                         initBluetooth();
                 } else {
-                    exit();
+                    initView();
                 }
             });
 
@@ -289,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setMessage(str);
         builder
                 .setPositiveButton(getString(R.string.confirm), (dialogInterface, i12) -> requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION))
-                .setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> exit()).show();
+                .setNegativeButton(getString(R.string.cancel), (dialogInterface, i1) -> initView()).show();
     }
 
     private void send(int i, int i2, int i3, int i4, int i5) {

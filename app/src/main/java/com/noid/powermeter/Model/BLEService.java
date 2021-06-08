@@ -568,14 +568,16 @@ public class BLEService extends Service {
     }
 
     public void scan(boolean z) {
-        BluetoothLeScanner bluetoothLeScanner = mAdapter.getBluetoothLeScanner();
-        if (z) {
-            Log.i("test", "Scan started");
-            bluetoothLeScanner.startScan(this.mLeScanCallback);
-            return;
+        if (mAdapter.isEnabled()) {
+            BluetoothLeScanner bluetoothLeScanner = mAdapter.getBluetoothLeScanner();
+            if (z) {
+                Log.i("test", "Scan started");
+                bluetoothLeScanner.startScan(this.mLeScanCallback);
+                return;
+            }
+            Log.i("test", "Scan stopped");
+            bluetoothLeScanner.stopScan(this.mLeScanCallback);
         }
-        Log.i("test", "Scan stopped");
-        bluetoothLeScanner.stopScan(this.mLeScanCallback);
     }
 
     public void connect(String str) {
