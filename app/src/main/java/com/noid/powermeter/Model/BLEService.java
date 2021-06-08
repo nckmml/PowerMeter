@@ -102,10 +102,6 @@ public class BLEService extends Service {
         }
     };
     private byte[] mValue;
-    private List<Float> list0 = new ArrayList<>();
-    private List<Float> list1 = new ArrayList<>();
-    private List<Float> list2 = new ArrayList<>();
-    private List<String> timeList = new ArrayList<>();
     private int f0 = 0;
     private SharedPreferences mSharedPreferences;
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -426,21 +422,6 @@ public class BLEService extends Service {
         }
     }
 
-    public List returnList(int listi) {
-        switch (listi) {
-            case 0:
-                return list0;
-            case 1:
-                return list1;
-            case 2:
-                return list2;
-            case 4:
-                return timeList;
-            default:
-                return new ArrayList<>();
-        }
-    }
-
     public void importList(ArrayList<ArrayList<String>> records) {
         int tempcount = 0;
         ArrayList<Entry> templist0 = new ArrayList<>();
@@ -500,8 +481,10 @@ public class BLEService extends Service {
                     break;
                 case ACTION_STOP_NOTIFICATION_SERVICE:
                     Toast.makeText(getApplicationContext(), "Foreground service is stopped.", Toast.LENGTH_LONG).show();
-                    mBluetoothGatt.disconnect();
-                    mBluetoothGatt.close();
+                    if (mBluetoothGatt != null) {
+                        mBluetoothGatt.disconnect();
+                        mBluetoothGatt.close();
+                    }
                     BLEService.this.scan(false);
                     stopForegroundService();
                     break;

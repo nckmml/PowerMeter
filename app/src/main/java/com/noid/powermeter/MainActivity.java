@@ -24,6 +24,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -46,8 +47,13 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    public int adu;
-    public boolean mBound = false;
+    private MainActivityViewModel mainActivityViewModel;
+    private int adu() {
+        if (mainActivityViewModel.getData().getValue() != null)
+            return Integer.parseInt(mainActivityViewModel.getData().getValue().get(0));
+        return 0;
+    }
+    private boolean mBound = false;
     public ActivityResultLauncher<Intent> bluetoothActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -55,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     initView();
                 }
             });
-    BLEService mService;
+    private BLEService mService;
     public ActivityResultLauncher<Intent> openActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -86,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-
     public ActivityResultLauncher<Intent> saveActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -100,9 +105,13 @@ public class MainActivity extends AppCompatActivity {
                             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
                             Log.i("File writer", "started writing to file");
                             bw.write("Time,Voltage,Current,Power\n");
-                            ArrayList<ArrayList<String>> templist = new ArrayList<>(getRecordData());
-                            for (int i = 0; i < templist.size(); i++) {
-                                bw.write(templist.get(i).get(0) + "," + templist.get(i).get(1) + "," + templist.get(i).get(2) + "," + templist.get(i).get(3) + "\n");
+                            ArrayList<Entry> voltagelist = new ArrayList(getVoltageData());
+                            ArrayList<Entry> currentlist = new ArrayList(getCurrentData());
+                            ArrayList<Entry> powerlist = new ArrayList(getPowerData());
+                            ArrayList<String> timerecordlist = new ArrayList(getTimeRecordData());
+
+                            for (int i = 0; i < timerecordlist.size(); i++) {
+                                bw.write(timerecordlist.get(i) + "," + voltagelist.get(i).getY() + "," + currentlist.get(i).getY() + "," + powerlist.get(i).getY() + "\n");
                             }
                             Log.i("File writer", "Finished writing to file");
                             bw.flush();
@@ -158,8 +167,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private ArrayList<Entry> getVoltageData(){
+        return mainActivityViewModel.getVoltageData().getValue();
+    }
+
+    private ArrayList<Entry> getCurrentData(){
+        return mainActivityViewModel.getCurrentData().getValue();
+    }
+
+    private ArrayList<Entry> getPowerData(){
+        return mainActivityViewModel.getPowerData().getValue();
+    }
+
+    private ArrayList<String> getTimeRecordData(){
+        return mainActivityViewModel.getTimeRecordData().getValue();
+    }
+
     private void exit() {
-        if(mBound == true) {
+        if(mBound) {
             Intent intent = new Intent(this, BLEService.class);
             intent.setAction(BLEService.ACTION_STOP_NOTIFICATION_SERVICE);
             startService(intent);
@@ -170,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         com.noid.powermeter.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -238,37 +264,6 @@ public class MainActivity extends AppCompatActivity {
             createFile("text/csv", "PowerRecording_" + java.time.LocalDateTime.now() + ".csv");
     }
 
-    public ArrayList<ArrayList<String>> getRecordData() {
-        ArrayList<ArrayList<String>> recordList = new ArrayList<>();
-        Log.i("getRecordData", "started getting record data");
-        for (int i = 0; i < mService.returnList(4).size(); i++) {
-            ArrayList<String> arrayList = new ArrayList<>();
-            arrayList.add(String.valueOf(mService.returnList(4).get(i)));
-            arrayList.add(String.valueOf(mService.returnList(0).get(i)));
-            arrayList.add(String.valueOf(mService.returnList(1).get(i)));
-            arrayList.add(String.valueOf(mService.returnList(2).get(i)));
-            recordList.add(arrayList);
-        }
-        Log.i("getRecordData", "finished getting record data");
-        return recordList;
-    }
-
-    public ArrayList<ArrayList<Entry>> getRawRecordData() {
-        ArrayList<ArrayList<Entry>> rawRecordList = new ArrayList<>();
-        for (int j = 0; j <= 2; j++) {
-            ArrayList<Entry> arrayList = new ArrayList<>();
-            for (int i = 0; i < mService.returnList(4).size(); i++) {
-                arrayList.add(new Entry(i, (float) mService.returnList(j).get(i)));
-            }
-            rawRecordList.add(arrayList);
-        }
-        return rawRecordList;
-    }
-
-    public ArrayList<String> getTimeRecordData() {
-        return new ArrayList<String>(mService.returnList(4));
-    }
-
     private void DialogClear(String str, final int i) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.Warning));
@@ -277,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
             private int anonVar;
 
             public void onClick(DialogInterface dialogInterface, int i) {
-                MainActivity.this.send(MainActivity.this.adu, anonVar, 0, 0, 0);
+                MainActivity.this.send(adu(), anonVar, 0, 0, 0);
             }
 
             private DialogInterface.OnClickListener init(int var) {
@@ -317,13 +312,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reset2(View view) {
-        if (this.adu != 2) {
+        if (adu() != 2) {
             DialogClear(getString(R.string.Clear2), 3);
         }
     }
 
     public void reset3(View view) {
-        if (this.adu != 3) {
+        if (adu() != 3) {
             DialogClear(getString(R.string.Clear), 1);
         } else {
             DialogClear(getString(R.string.Clear21), 1);
@@ -331,18 +326,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendSet(View view) {
-        send(this.adu, 49, 0, 0, 0);
+        send(adu(), 49, 0, 0, 0);
     }
 
     public void sendMinus(View view) {
-        send(this.adu, 52, 0, 0, 0);
+        send(adu(), 52, 0, 0, 0);
     }
 
     public void sendPlus(View view) {
-        send(this.adu, 51, 0, 0, 0);
+        send(adu(), 51, 0, 0, 0);
     }
 
     public void sendOk(View view) {
-        send(this.adu, 50, 0, 0, 0);
+        send(adu(), 50, 0, 0, 0);
     }
 }
