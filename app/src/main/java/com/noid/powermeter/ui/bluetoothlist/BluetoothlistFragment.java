@@ -94,7 +94,10 @@ public class BluetoothlistFragment extends Fragment {
 
             @Override
             public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
-                holder.deviceName.setText(BluetoothlistFragment.this.devices.get(position).getName());
+                if (BluetoothlistFragment.this.devices.get(position).getName() != null)
+                    holder.deviceName.setText(BluetoothlistFragment.this.devices.get(position).getName());
+                else
+                    holder.deviceName.setText("<unknown>");
                 holder.deviceAddress.setText(BluetoothlistFragment.this.devices.get(position).getAddress());
             }
 
