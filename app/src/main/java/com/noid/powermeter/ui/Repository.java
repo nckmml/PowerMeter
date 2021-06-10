@@ -18,6 +18,8 @@ public class Repository {
     private final MediatorLiveData<ArrayList<Entry>> mPowerData = new MediatorLiveData<>();
     private final MediatorLiveData<ArrayList<String>> mTimeRecordData = new MediatorLiveData<>();
     private final MediatorLiveData<ArrayList<BluetoothDevice>> mBluetoothDevices = new MediatorLiveData<>();
+    private final MediatorLiveData<ArrayList<Entry>> mTemperatureData = new MediatorLiveData<>();
+    private final MediatorLiveData<ArrayList<Entry>> mPercentageData = new MediatorLiveData<>();
 
 
     private Repository() {}
@@ -44,6 +46,12 @@ public class Repository {
     public LiveData<ArrayList<BluetoothDevice>> getBluetoothDevices(){
         return mBluetoothDevices;
     }
+    public LiveData<ArrayList<Entry>> getTemperatureData(){
+        return mTemperatureData;
+    }
+    public LiveData<ArrayList<Entry>> getPercentageData() {
+        return mPercentageData;
+    }
 
     public void addData(LiveData<ArrayList<String>> data) {
         mData.addSource(data, mData::setValue);
@@ -67,5 +75,13 @@ public class Repository {
 
     public void addBluetoothDevice(LiveData<ArrayList<BluetoothDevice>> bluetoothDevices) {
         mBluetoothDevices.addSource(bluetoothDevices, mBluetoothDevices::setValue);
+    }
+
+    public void addTemperatureData(LiveData<ArrayList<Entry>> temperatureData) {
+        mTemperatureData.addSource(temperatureData, mTemperatureData::setValue);
+    }
+
+    public void addPercentageData(LiveData<ArrayList<Entry>> percentageData) {
+        mPercentageData.addSource(percentageData, mPercentageData::setValue);
     }
 }

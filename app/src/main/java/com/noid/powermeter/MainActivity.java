@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -18,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -30,6 +32,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import com.github.mikephil.charting.data.Entry;
 import com.noid.powermeter.Model.BLEService;
@@ -49,6 +52,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private MainActivityViewModel mainActivityViewModel;
+    private SharedPreferences mSharedPreferences;
     private boolean mBound = false;
     private BLEService mService;
     private static final int COMMAND_RESET_A = 1;
@@ -207,8 +211,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         com.noid.powermeter.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        SharedPreferences.Editor edit = mSharedPreferences.edit();
+        if (mSharedPreferences.getString("RECORD_TEMP", null) == null)
+            edit.putString("RECORD_TEMP", "FALSE");
+        if (mSharedPreferences.getString("RECORD_PERCENTAGE", null) == null)
+            edit.putString("RECORD_PERCENTAGE", "FALSE");
+        if (mSharedPreferences.getString("INTERNAL_TEMP", null) == null)
+            edit.putString("INTERNAL_TEMP", "FALSE");
+        if (mSharedPreferences.getString("INTERNAL_PERCENTAGE", null) == null)
+            edit.putString("INTERNAL_PERCENTAGE", "FALSE");
+        edit.apply();
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_textdisplay, R.id.navigation_graph, R.id.navigation_table, R.id.navigation_bluetoothlist, R.id.navigation_export)
                 .build();
@@ -216,6 +231,46 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
         initLocationPermission();
+    }
+
+    public void onSetRecTempCheckbox(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+        SharedPreferences.Editor edit = mSharedPreferences.edit();
+        if (checked && !mSharedPreferences.getString("RECORD_TEMP", null).equals("TRUE"))
+            edit.putString("RECORD_TEMP", "TRUE");
+        if (!checked && !mSharedPreferences.getString("RECORD_TEMP", null).equals("FALSE"))
+            edit.putString("RECORD_TEMP", "FALSE");
+        edit.apply();
+    }
+
+    public void onSetRecPercentageCheckbox(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+        SharedPreferences.Editor edit = mSharedPreferences.edit();
+        if (checked && !mSharedPreferences.getString("RECORD_PERCENTAGE", null).equals("TRUE"))
+            edit.putString("RECORD_PERCENTAGE", "TRUE");
+        if (!checked && !mSharedPreferences.getString("RECORD_PERCENTAGE", null).equals("FALSE"))
+            edit.putString("RECORD_PERCENTAGE", "FALSE");
+        edit.apply();
+    }
+
+    public void onSetIntTempCheckbox(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+        SharedPreferences.Editor edit = mSharedPreferences.edit();
+        if (checked && !mSharedPreferences.getString("INTERNAL_TEMP", null).equals("TRUE"))
+            edit.putString("INTERNAL_TEMP", "TRUE");
+        if (!checked && !mSharedPreferences.getString("INTERNAL_TEMP", null).equals("FALSE"))
+            edit.putString("INTERNAL_TEMP", "FALSE");
+        edit.apply();
+    }
+
+    public void onSetIntPercentageCheckbox(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+        SharedPreferences.Editor edit = mSharedPreferences.edit();
+        if (checked && !mSharedPreferences.getString("INTERNAL_PERCENTAGE", null).equals("TRUE"))
+            edit.putString("INTERNAL_PERCENTAGE", "TRUE");
+        if (!checked && !mSharedPreferences.getString("INTERNAL_PERCENTAGE", null).equals("FALSE"))
+            edit.putString("INTERNAL_PERCENTAGE", "FALSE");
+        edit.apply();
     }
 
     private void initView() {

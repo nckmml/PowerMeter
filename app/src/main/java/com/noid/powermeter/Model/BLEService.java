@@ -15,9 +15,12 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -65,17 +68,22 @@ public class BLEService extends Service {
     private final MutableLiveData<ArrayList<Entry>> mPowerData = new MutableLiveData<>();
     private final MutableLiveData<ArrayList<String>> mTimeRecordData = new MutableLiveData<>();
     private final MutableLiveData<ArrayList<BluetoothDevice>> mBluetoothDevices = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<Entry>> mTemperatureData = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<Entry>> mPercentageData = new MutableLiveData<>();
 
     private ArrayList<Entry> VoltageData = new ArrayList<>();
     private ArrayList<Entry> CurrentData = new ArrayList<>();
     private ArrayList<Entry> PowerData = new ArrayList<>();
     private ArrayList<String> TimeRecordData = new ArrayList<>();
     private final ArrayList<BluetoothDevice> BluetoothDevices = new ArrayList<>();
+    private ArrayList<Entry> TemperatureData = new ArrayList<>();
+    private ArrayList<Entry> PercentageData = new ArrayList<>();
 
     private byte[] mValue;
     private int recordedSeconds = 0;
     private int entryCount = 0;
     private SharedPreferences mSharedPreferences;
+    private BatInfoReceiver mBatInfoReceiver;
 
     public static final String ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE";
     public static final String ACTION_STOP_NOTIFICATION_SERVICE = "ACTION_STOP_NOTIFICATION_SERVICE";
@@ -98,6 +106,12 @@ public class BLEService extends Service {
     }
     public LiveData<ArrayList<BluetoothDevice>> getBluetoothDevices(){
         return mBluetoothDevices;
+    }
+    public LiveData<ArrayList<Entry>> getTemperatureData(){
+        return mTemperatureData;
+    }
+    public LiveData<ArrayList<Entry>> getPercentageData(){
+        return mPercentageData;
     }
 
     private final ScanCallback mLeScanCallback = new ScanCallback() {
@@ -183,7 +197,7 @@ public class BLEService extends Service {
                             float voltage = 0.0f;
                             float current = 0.0f;
                             float power = 0.0f;
-                            int tempRawC;
+                            int tempRawC = 0;
                             String timeHours;
                             String timeMinutes;
                             String timeSeconds;
@@ -406,6 +420,24 @@ public class BLEService extends Service {
                                     break;
                             }
                             updateNotification(dataBuilder.toString());
+                            if (mSharedPreferences.getString("RECORD_TEMP", null).equals("TRUE")){
+                                if (mSharedPreferences.getString("INTERNAL_TEMP", null).equals("TRUE")){
+                                    TemperatureData.add(new Entry(entryCount, mBatInfoReceiver.get_temp()));
+                                    Log.d("BLEService", "Adding temperature: "+mBatInfoReceiver.get_temp());
+                                } else {
+                                    TemperatureData.add(new Entry(entryCount, tempRawC));
+                                    Log.d("BLEService", "Adding temperature: "+tempRawC);
+                                }
+                                mTemperatureData.postValue(TemperatureData);
+                            }
+                            if (mSharedPreferences.getString("RECORD_PERCENTAGE", null).equals("TRUE")){
+                                if (mSharedPreferences.getString("INTERNAL_PERCENTAGE", null).equals("TRUE")){
+                                    PercentageData.add(new Entry(entryCount, mBatInfoReceiver.get_percentage()));
+                                } else {
+                                    PercentageData.add(new Entry(entryCount, 0));
+                                }
+                                mPercentageData.postValue(PercentageData);
+                            }
                             mData.postValue(data);
                             VoltageData.add(new Entry(entryCount, voltage));
                             CurrentData.add(new Entry(entryCount, current));
@@ -478,6 +510,10 @@ public class BLEService extends Service {
         Repository.instance().addPowerData(getPowerData());
         Repository.instance().addTimeRecordData(getTimeRecordData());
         Repository.instance().addBluetoothDevice(getBluetoothDevices());
+        Repository.instance().addTemperatureData(getTemperatureData());
+        Repository.instance().addPercentageData(getPercentageData());
+        mBatInfoReceiver = new BatInfoReceiver();
+        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         bluetooth_device_address = this.mSharedPreferences.getString("DEVICE_ADDRESS", null);
     }
@@ -633,6 +669,26 @@ public class BLEService extends Service {
 
         public BLEService getService() {
             return BLEService.this;
+        }
+    }
+
+    public static class BatInfoReceiver extends BroadcastReceiver {
+        int temp = 0;
+        float percentage = 0;
+
+        float get_temp() {
+            return (float) (temp / 10);
+        }
+
+        float get_percentage() {
+            return percentage;
+        }
+        @Override
+        public void onReceive(Context arg0, Intent intent){
+            temp = (intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0));
+            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            percentage = level * 100 / (float)scale;
         }
     }
 }

@@ -42,4 +42,48 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/checkbox_recordTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:onClick="onSetRecTempCheckbox"
+        android:text="Record temperature"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_export" />
+
+    <CheckBox
+        android:id="@+id/checkbox_useInternalTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:onClick="onSetIntTempCheckbox"
+        android:text="use phone internal"
+        app:layout_constraintStart_toEndOf="@+id/checkbox_recordTemp"
+        app:layout_constraintTop_toBottomOf="@+id/button_import" />
+
+    <CheckBox
+        android:id="@+id/checkbox_recordPercentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:onClick="onSetRecPercentageCheckbox"
+        android:text="Record percentage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_recordTemp" />
+
+    <CheckBox
+        android:id="@+id/checkbox_useInternalPercentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:onClick="onSetIntPercentageCheckbox"
+        android:text="use phone internal"
+        app:layout_constraintStart_toEndOf="@+id/checkbox_recordPercentage"
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_useInternalTemp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

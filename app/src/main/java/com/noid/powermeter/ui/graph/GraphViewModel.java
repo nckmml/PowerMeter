@@ -22,4 +22,10 @@ public class GraphViewModel extends ViewModel {
     public LiveData<ArrayList<String>> getTimeRecordData() {
         return Repository.instance().getTimeRecordData();
     }
+    public LiveData<ArrayList<Entry>> getTemperatureData() {
+        return Repository.instance().getTemperatureData();
+    }
+    public LiveData<ArrayList<Entry>> getPercentageData() {
+        return Repository.instance().getPercentageData();
+    }
 }
